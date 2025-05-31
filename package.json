@@ -1,13 +1,15 @@
 {
-  "name": "template-vite-react-ts-tailwind",
-  "private": true,
+  "name": "report-demo",
+  "private": false,
+  "homepage": "https://sdrrv.github.io/report-demo/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "framer-motion": "12.12.1",
@@ -18,6 +20,7 @@
   "devDependencies": {
     "@nabla/vite-plugin-eslint": "2.0.4",
     "@types/eslint": "8.56.12",
+    "gh-pages": "^6.1.1",
     "@types/node": "20.12.13",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
