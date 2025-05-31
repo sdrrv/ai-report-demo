@@ -1,7 +1,7 @@
 {
-  "name": "report-demo",
+  "name": "ai-report-demo",
   "private": false,
-  "homepage": "https://sdrrv.github.io/report-demo/",
+  "homepage": "https://sdrrv.github.io/ai-report-demo/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {

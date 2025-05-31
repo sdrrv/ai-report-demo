@@ -9,11 +9,11 @@ interface PlayerSpeed {
 }
 
 interface SpeedCardProps {
-  selectedPlayer: number;
+  //selectedPlayer: number;
   delay?: number;
 }
 
-const SpeedCard: React.FC<SpeedCardProps> = ({ selectedPlayer, delay = 0 }) => {
+const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
   const [animatedWidths, setAnimatedWidths] = useState<number[]>([]);
 
   // Sample data - replace with actual data based on selectedPlayer

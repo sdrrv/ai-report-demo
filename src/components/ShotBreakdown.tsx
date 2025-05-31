@@ -7,11 +7,11 @@ interface ShotData {
 }
 
 interface ShotBreakdownProps {
-  selectedPlayer: number;
+  //selectedPlayer: number;
   delay?: number;
 }
 
-const ShotBreakdown: React.FC<ShotBreakdownProps> = ({ selectedPlayer, delay = 0 }) => {
+const ShotBreakdown: React.FC<ShotBreakdownProps> = ({ delay = 0 }) => {
   const [animatedAttackWidths, setAnimatedAttackWidths] = useState<number[]>([]);
   const [animatedDefensiveWidths, setAnimatedDefensiveWidths] = useState<number[]>([]);
 

@@ -75,7 +75,7 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
         </div>
 
         {/* Shot Breakdown - New Component */}
-        <ShotBreakdown selectedPlayer={selectedPlayer} delay={400} />
+        <ShotBreakdown delay={400} />
 
         {/* Team Performance */}
         <div className="animate-fade-in-delay-2 mb-4 rounded-2xl bg-white p-6 shadow-lg">
@@ -137,7 +137,7 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
         </div>
 
         {/* Speed Card */}
-        <SpeedCard selectedPlayer={selectedPlayer} delay={1600} />
+        <SpeedCard delay={1600} />
 
         {/* Ball Map */}
         <BallMap selectedPlayer={selectedPlayer} />
