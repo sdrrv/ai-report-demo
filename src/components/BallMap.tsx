@@ -158,7 +158,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
             stroke="white"
             strokeWidth="0.5"
           />
-          
+
           {/* Service lines */}
           <line
             x1="10"

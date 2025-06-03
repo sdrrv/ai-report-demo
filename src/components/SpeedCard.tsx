@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Zap, User } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 interface PlayerSpeed {
   id: number;
@@ -24,11 +25,13 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
     { id: 4, name: 'Player 1', speed: 16.2 },
   ].sort((a, b) => b.speed - a.speed); // Sort by speed (highest first)
 
-  const maxSpeed = Math.max(...playerSpeeds.map(p => p.speed));
+  const maxSpeed = Math.max(...playerSpeeds.map((p) => p.speed));
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const widths = playerSpeeds.map(player => (player.speed / maxSpeed) * 100);
+      const widths = playerSpeeds.map(
+        (player) => (player.speed / maxSpeed) * 100,
+      );
       setAnimatedWidths(widths);
     }, delay);
 
@@ -41,7 +44,9 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
         <Zap className="h-5 w-5" />
         <div>
           <h2 className="text-lg font-semibold text-gray-800">Running Speed</h2>
-          <p className="text-sm text-gray-500">Maximum speed reached by each player</p>
+          <p className="text-sm text-gray-500">
+            Maximum speed reached by each player
+          </p>
         </div>
       </div>
 
@@ -49,39 +54,33 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
         {playerSpeeds.map((player, index) => (
           <div key={player.id} className="flex items-center gap-4">
             {/* Avatar */}
-            <div className={`relative h-12 w-12 rounded-full flex items-center justify-center ${
-              player.isMe 
-                ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
-                : 'bg-gray-200'
-            }`}>
-              
-                <User className="h-6 w-6 text-gray-500" />
+            <div
+              className={cn("relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-200", player.isMe && "border-slate-500 border-[2px]" )}>
+              <User className="h-6 w-6 text-gray-500" />
             </div>
 
             {/* Player Info and Progress */}
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className={`font-medium ${
-                  player.isMe ? 'text-gray-900' : 'text-gray-700'
-                }`}>
+              <div className="mb-2 flex items-center justify-between">
+                <h3
+                  className={`font-medium ${
+                    player.isMe ? 'text-gray-900' : 'text-gray-700'
+                  }`}
+                >
                   {player.name}
                 </h3>
-                <span className="text-lg font-bold text-gray-900">
+                <span className="text-medium font-bold text-gray-900">
                   {player.speed.toFixed(1)} km/h
                 </span>
               </div>
 
               {/* Progress Bar */}
-              <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                  className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ease-out ${
-                    player.isMe 
-                      ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
-                      : 'bg-gray-800'
-                  }`}
-                  style={{ 
+              <div className="relative h-2 overflow-hidden rounded-full bg-gray-200">
+                <div
+                  className={"absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ease-out bg-slate-600"}
+                  style={{
                     width: `${animatedWidths[index] || 0}%`,
-                    transitionDelay: `${index * 200}ms`
+                    transitionDelay: `${index * 200}ms`,
                   }}
                 />
               </div>
@@ -91,7 +90,7 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
       </div>
 
       {/* Speed Range Info */}
-      <div className="mt-6 pt-4 border-t border-gray-100">
+      <div className="mt-6 border-t border-gray-100 pt-4">
         <div className="flex justify-between text-sm text-gray-500">
           <span>0 km/h</span>
           <span>{maxSpeed.toFixed(1)} km/h</span>

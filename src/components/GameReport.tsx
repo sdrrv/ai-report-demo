@@ -83,7 +83,7 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
             <Users className="h-5 w-5 text-gray-600" />
             Team Performance
           </h2>
-          <div className="flex justify-around">
+          <div className="flex justify-around items-center">
             <CircleChart
               percentage={gameData.teamHits}
               label="Team Hits"
