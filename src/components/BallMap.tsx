@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Activity, MapPin } from 'lucide-react';
-import { TennisBall } from '../assets/icons/TennisBall';
+import { TennisBall } from '@/assets/icons/TennisBall';
 
 interface Shot {
   x: number;
@@ -22,6 +22,7 @@ interface BallMapProps {
 
 type HeatmapView = 'zones' | 'sides' | 'front-back';
 type MainMode = 'ballHits' | 'playerPosition';
+
 
 const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
   const [mainMode, setMainMode] = useState<MainMode>('ballHits');
@@ -95,7 +96,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
 
   // Helper function to get overlay color based on percentage
   const getOverlayColor = (percentage: number): string => {
-    return `rgba(50, 50, 50, ${0.1 + (percentage / 100) * 0.3})`;
+    return `rgba(50, 50, 50, ${0.2 + (percentage / 100) * 0.5})`;
   };
 
   return (
@@ -327,7 +328,70 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
           {/* Court background */}
           <rect x="0" y="0" width="100" height="170" fill="#2563eb" />
 
-          {/* Heatmap overlays - only on bottom half */}
+          {/* Center service line */}
+          <line
+            x1="50"
+            y1="42"
+            x2="50"
+            y2="128"
+            stroke="white"
+            strokeWidth="0.5"
+          />
+
+          {/* Service lines */}
+          <line
+            x1="10"
+            y1="42"
+            x2="90"
+            y2="42"
+            stroke="white"
+            strokeWidth="0.5"
+          />
+          <line
+            x1="10"
+            y1="128"
+            x2="90"
+            y2="128"
+            stroke="white"
+            strokeWidth="0.5"
+          />
+
+          {/* Court outline */}
+          <rect
+            x="10"
+            y="20"
+            width="80"
+            height="130"
+            fill="none"
+            stroke="white"
+            strokeWidth="1"
+          />
+
+          {/* Net */}
+          <line
+            x1="10"
+            y1="85"
+            x2="90"
+            y2="85"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeDasharray="2,2"
+          />
+
+          {/* Wall indicators */}
+          <rect
+            x="5"
+            y="15"
+            width="90"
+            height="140"
+            fill="none"
+            stroke="white"
+            strokeWidth="0.5"
+            strokeDasharray="1,1"
+            opacity="0.5"
+          />
+
+          {/* Heatmap overlays (rectangles only) - only on bottom half */}
           {mainMode === 'playerPosition' && (
             <>
               {heatmapView === 'zones' && (
@@ -400,38 +464,6 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                     height="21.67"
                     fill={getOverlayColor(heatmapData[8].value)}
                   />
-                  
-                  {/* Percentage badges */}
-                  {heatmapData.map((data, index) => {
-                    const row = Math.floor(index / 3);
-                    const col = index % 3;
-                    const x = 23.33 + col * 26.67;
-                    const y = 95.83 + row * 21.67;
-                    return (
-                      <g key={index}>
-                        <rect
-                          x={x - 10}
-                          y={y - 6}
-                          width="20"
-                          height="12"
-                          rx="6"
-                          fill="white"
-                          stroke="#333"
-                          strokeWidth="0.5"
-                        />
-                        <text
-                          x={x}
-                          y={y + 2}
-                          textAnchor="middle"
-                          fontSize="8"
-                          fill="black"
-                          fontWeight="500"
-                        >
-                          {data.value}%
-                        </text>
-                      </g>
-                    );
-                  })}
                 </g>
               )}
 
@@ -463,36 +495,6 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                     height="65"
                     fill={getOverlayColor(heatmapData[2].value)}
                   />
-                  
-                  {/* Percentage badges */}
-                  {heatmapData.map((data, index) => {
-                    const x = 23.33 + index * 26.67;
-                    const y = 117.5;
-                    return (
-                      <g key={index}>
-                        <rect
-                          x={x - 10}
-                          y={y - 6}
-                          width="20"
-                          height="12"
-                          rx="6"
-                          fill="white"
-                          stroke="#333"
-                          strokeWidth="0.5"
-                        />
-                        <text
-                          x={x}
-                          y={y + 2}
-                          textAnchor="middle"
-                          fontSize="8"
-                          fill="black"
-                          fontWeight="500"
-                        >
-                          {data.value}%
-                        </text>
-                      </g>
-                    );
-                  })}
                 </g>
               )}
 
@@ -515,104 +517,10 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                     height="32.5"
                     fill={getOverlayColor(heatmapData[1].value)}
                   />
-                  
-                  {/* Percentage badges */}
-                  {heatmapData.map((data, index) => {
-                    const x = 70;
-                    const y = 101.25 + index * 32.5;
-                    return (
-                      <g key={index}>
-                        <rect
-                          x={x - 10}
-                          y={y - 6}
-                          width="20"
-                          height="12"
-                          rx="6"
-                          fill="white"
-                          stroke="#333"
-                          strokeWidth="0.5"
-                        />
-                        <text
-                          x={x}
-                          y={y + 2}
-                          textAnchor="middle"
-                          fontSize="8"
-                          fill="black"
-                          fontWeight="500"
-                        >
-                          {data.value}%
-                        </text>
-                      </g>
-                    );
-                  })}
                 </g>
               )}
             </>
           )}
-
-          {/* Court lines */}
-          {/* Center service line */}
-          <line
-            x1="50"
-            y1="42"
-            x2="50"
-            y2="128"
-            stroke="white"
-            strokeWidth="0.5"
-          />
-
-          {/* Service lines */}
-          <line
-            x1="10"
-            y1="42"
-            x2="90"
-            y2="42"
-            stroke="white"
-            strokeWidth="0.5"
-          />
-          <line
-            x1="10"
-            y1="128"
-            x2="90"
-            y2="128"
-            stroke="white"
-            strokeWidth="0.5"
-          />
-
-          {/* Court outline */}
-          <rect
-            x="10"
-            y="20"
-            width="80"
-            height="130"
-            fill="none"
-            stroke="white"
-            strokeWidth="1"
-          />
-
-          {/* Net */}
-          <line
-            x1="10"
-            y1="85"
-            x2="90"
-            y2="85"
-            stroke="white"
-            strokeWidth="1.5"
-            strokeDasharray="2,2"
-          />
-
-          {/* Wall indicators */}
-          <rect
-            x="5"
-            y="15"
-            width="90"
-            height="140"
-            fill="none"
-            stroke="white"
-            strokeWidth="0.5"
-            strokeDasharray="1,1"
-            opacity="0.5"
-          />
 
           {/* Shots - only show when in ball hits mode */}
           {mainMode === 'ballHits' && filteredShots.map((shot, index) => (
@@ -653,6 +561,94 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               )}
             </g>
           ))}
+
+          {/* Heatmap text labels - moved to the end so they appear on top */}
+          {mainMode === 'playerPosition' && (
+            <>
+              {heatmapView === 'zones' && (
+                <g className="animate-fade-in">
+                  {/* Percentage badges */}
+                  {heatmapData.map((data, index) => {
+                    const row = Math.floor(index / 3);
+                    const col = index % 3;
+                    const x = 23.33 + col * 26.67;
+                    const y = 95.83 + row * 21.67;
+                    return (
+                      <g key={index}>
+                        <text
+                          x={x + 1}
+                          y={y + 1}
+                          textAnchor="middle"
+                          fontSize="7"
+                          fill="white"
+                          stroke="black"
+                          strokeWidth="0.9"
+                          paintOrder="stroke"
+                          fontWeight="600"
+                        >
+                          {data.value}%
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
+              )}
+
+              {heatmapView === 'sides' && (
+                <g className="animate-fade-in">
+                  {/* Percentage badges */}
+                  {heatmapData.map((data, index) => {
+                    const x = 23.33 + index * 26.67;
+                    const y = 117.5;
+                    return (
+                      <g key={index}>
+                        <text
+                          x={x + 1}
+                          y={y + 1}
+                          textAnchor="middle"
+                          fontSize="7"
+                          fill="white"
+                          stroke="black"
+                          strokeWidth="0.9"
+                          paintOrder="stroke"
+                          fontWeight="600"
+                        >
+                          {data.value}%
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
+              )}
+
+              {heatmapView === 'front-back' && (
+                <g className="animate-fade-in">
+                  {/* Percentage badges */}
+                  {heatmapData.map((data, index) => {
+                    const x = 70;
+                    const y = 101.25 + index * 32.5;
+                    return (
+                      <g key={index}>
+                        <text
+                          x={x + 1}
+                          y={y + 2}
+                          textAnchor="middle"
+                          fontSize="7"
+                          fill="white"
+                          stroke="black"
+                          strokeWidth="0.9"
+                          paintOrder="stroke"
+                          fontWeight="600"
+                        >
+                          {data.value}%
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
+              )}
+            </>
+          )}
         </svg>
       </div>
 
