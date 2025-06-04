@@ -5,9 +5,33 @@ import {
   useProgress,
   Html,
   Trail,
+  Line,
 } from '@react-three/drei';
 import { Suspense, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
+
+interface Shot {
+  start: [number, number, number];
+  end: [number, number, number];
+  height: number;
+  speed: number;
+}
+
+type ShotType = 'forehand' | 'backhand' | 'serve' | 'lob';
+
+interface TennisBallProps {
+  startPosition: [number, number, number];
+  endPosition: [number, number, number];
+  height?: number;
+  duration?: number;
+  onComplete?: () => void;
+}
+
+interface TrajectoryLineProps {
+  startPosition: [number, number, number];
+  endPosition: [number, number, number];
+  height?: number;
+}
 
 function Loader() {
   const { progress } = useProgress();
@@ -31,12 +55,12 @@ function TennisBall({
   height = 3,
   duration = 2,
   onComplete,
-}) {
-  const ballRef = useRef();
+}: TennisBallProps) {
+  const ballRef = useRef<THREE.Mesh>(null);
   const [progress, setProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!isPlaying || !ballRef.current) return;
 
     const newProgress = Math.min(progress + delta / duration, 1);
@@ -82,7 +106,11 @@ function TennisBall({
   );
 }
 
-function TrajectoryLine({ startPosition, endPosition, height = 3 }) {
+function TrajectoryLine({
+  startPosition,
+  endPosition,
+  height = 3,
+}: TrajectoryLineProps) {
   const points = [];
   const numPoints = 50;
 
@@ -99,21 +127,15 @@ function TrajectoryLine({ startPosition, endPosition, height = 3 }) {
     points.push(new THREE.Vector3(x, y, z));
   }
 
-  const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-
-  return (
-    <line geometry={lineGeometry}>
-      <lineBasicMaterial color="#ffff00" opacity={0.3} transparent />
-    </line>
-  );
+  return <Line points={points} color="#ffff00" opacity={0.3} transparent />;
 }
 
 export default function TennisTrajectoryDemo() {
   const [showBall, setShowBall] = useState(true);
-  const [shotType, setShotType] = useState('forehand');
+  const [shotType, setShotType] = useState<ShotType>('forehand');
   const [animationComplete, setAnimationComplete] = useState(false);
 
-  const shots = {
+  const shots: Record<ShotType, Shot> = {
     forehand: {
       start: [-2, 0.3, 0],
       end: [1.8, 0.4, -0.8],
@@ -152,7 +174,10 @@ export default function TennisTrajectoryDemo() {
     setTimeout(() => setShowBall(true), 100);
   };
 
-  const calculateDistance = (start, end) => {
+  const calculateDistance = (
+    start: [number, number, number],
+    end: [number, number, number],
+  ) => {
     const dx = end[0] - start[0];
     const dy = end[1] - start[1];
     const dz = end[2] - start[2];
@@ -172,7 +197,7 @@ export default function TennisTrajectoryDemo() {
             <label className="mb-1 block text-sm font-medium">Shot Type</label>
             <select
               value={shotType}
-              onChange={(e) => setShotType(e.target.value)}
+              onChange={(e) => setShotType(e.target.value as ShotType)}
               className="w-full rounded-lg border px-3 py-2"
             >
               <option value="forehand">Forehand</option>
@@ -200,8 +225,8 @@ export default function TennisTrajectoryDemo() {
       <Canvas
         camera={{ position: [0, 4, 8], fov: 60 }}
         gl={{ preserveDrawingBuffer: true }}
-        onCreated={({ gl, scene }) => {
-          gl.setClearColor('#1e293b'); // slate-800
+        onCreated={({ gl }) => {
+          gl.setClearColor('#1e293b');
         }}
       >
         <ambientLight intensity={0.7} />
