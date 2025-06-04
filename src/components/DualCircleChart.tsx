@@ -43,7 +43,7 @@ const DualCircleChart: React.FC<DualCircleChartProps> = ({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="#e5e7eb"
+            stroke="#e2e8f0"
             strokeWidth={strokeWidth}
           />
           {/* Offensive segment */}
@@ -52,7 +52,7 @@ const DualCircleChart: React.FC<DualCircleChartProps> = ({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="#ef4444"
+            stroke="#334155"
             strokeWidth={strokeWidth}
             strokeDasharray={`${offensiveLength} ${circumference}`}
             strokeDashoffset={0}
@@ -65,7 +65,7 @@ const DualCircleChart: React.FC<DualCircleChartProps> = ({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="#3b82f6"
+            stroke="#0ea5e9"
             strokeWidth={strokeWidth}
             strokeDasharray={`${defensiveLength} ${circumference}`}
             strokeDashoffset={-offensiveLength}
@@ -74,20 +74,22 @@ const DualCircleChart: React.FC<DualCircleChartProps> = ({
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <Swords className="mb-1 h-8 w-8 text-gray-600" />
-          <span className="text-xs font-medium text-gray-500">Shot Type</span>
+          <div className="mb-2 rounded-lg bg-slate-600 p-2">
+            <Swords className="h-6 w-6 text-white" />
+          </div>
+          <span className="text-xs font-medium text-slate-500">Shot Type</span>
         </div>
       </div>
       <div className="flex gap-6">
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-red-500"></div>
-          <span className="text-sm text-gray-600">
+          <div className="h-3 w-3 rounded-full bg-slate-700"></div>
+          <span className="text-sm font-medium text-slate-700">
             Offensive {animatedOffensive}%
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-          <span className="text-sm text-gray-600">
+          <div className="h-3 w-3 rounded-full bg-sky-500"></div>
+          <span className="text-sm font-medium text-slate-700">
             Defensive {animatedDefensive}%
           </span>
         </div>

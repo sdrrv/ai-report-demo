@@ -262,8 +262,8 @@ export default function TennisTrajectoryDemo() {
           enableZoom={true}
           enableRotate={true}
           maxPolarAngle={Math.PI / 2.2}
-          minDistance={3}
-          maxDistance={20}
+          minDistance={5}
+          maxDistance={10}
         />
       </Canvas>
     </div>
