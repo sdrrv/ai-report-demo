@@ -21,15 +21,14 @@ const ShotBreakdown: React.FC<ShotBreakdownProps> = ({ delay = 0 }) => {
 
   // Sample data - replace with actual data based on selectedPlayer
   const attackHits: ShotData[] = [
-    { name: 'Volley', percentage: 34 },
-    { name: 'Bandeja', percentage: 14 },
-    { name: 'Smash', percentage: 5 },
+    { name: 'Forehand', percentage: 64 },
+    { name: 'Backhand', percentage: 14 },
+    { name: 'Smash', percentage: 22 },
   ];
 
   const defensiveHits: ShotData[] = [
-    { name: 'Ground stroke', percentage: 21 },
-    { name: 'Long lob', percentage: 20 },
-    { name: 'Short lob', percentage: 6 },
+    { name: 'Backhand', percentage: 44 },
+    { name: 'Forehand', percentage: 66 },
   ];
 
   const maxAttackPercentage = Math.max(
@@ -84,7 +83,7 @@ const ShotBreakdown: React.FC<ShotBreakdownProps> = ({ delay = 0 }) => {
       </div>
 
       <div className="space-y-3">
-        {shots.map((shot, index) => (
+        {shots.sort((a,b) => b.percentage - a.percentage).map((shot, index) => (
           <div key={shot.name} className="flex items-center gap-4">
             <div className="w-20 text-sm font-medium text-gray-700">
               {shot.name}

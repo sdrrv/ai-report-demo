@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User } from 'lucide-react';
+import { User, Activity, MapPin } from 'lucide-react';
 import { TennisBall } from '../assets/icons/TennisBall';
 
 interface Shot {
@@ -20,9 +20,14 @@ interface BallMapProps {
   selectedPlayer: number;
 }
 
+type HeatmapView = 'zones' | 'sides' | 'front-back';
+type MainMode = 'ballHits' | 'playerPosition';
+
 const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
+  const [mainMode, setMainMode] = useState<MainMode>('ballHits');
   const [selectedShot, setSelectedShot] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'hit' | 'bounce'>('hit');
+  const [heatmapView, setHeatmapView] = useState<HeatmapView>('zones');
 
   // Sample shot data - adjusted y coordinates for the stretched court
   const shots: Shot[] = [
@@ -58,6 +63,41 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
     { id: 4, position: 'Front Right' },
   ];
 
+  // Sample heatmap data
+  const getHeatmapData = () => {
+    if (heatmapView === 'zones') {
+      return [
+        { region: 'net_left', value: 15 },
+        { region: 'net_middle', value: 25 },
+        { region: 'net_right', value: 10 },
+        { region: 'transition_left', value: 20 },
+        { region: 'transition_middle', value: 35 },
+        { region: 'transition_right', value: 15 },
+        { region: 'back_left', value: 30 },
+        { region: 'back_middle', value: 40 },
+        { region: 'back_right', value: 25 },
+      ];
+    } else if (heatmapView === 'sides') {
+      return [
+        { region: 'left', value: 35 },
+        { region: 'middle', value: 45 },
+        { region: 'right', value: 20 },
+      ];
+    } else {
+      return [
+        { region: 'front', value: 35 },
+        { region: 'back', value: 65 },
+      ];
+    }
+  };
+
+  const heatmapData = getHeatmapData();
+
+  // Helper function to get overlay color based on percentage
+  const getOverlayColor = (percentage: number): string => {
+    return `rgba(50, 50, 50, ${0.1 + (percentage / 100) * 0.3})`;
+  };
+
   return (
     <div className="animate-fade-in-delay-4 mb-4 mt-4 rounded-2xl bg-white p-4 shadow-lg sm:p-6">
       <style>{`
@@ -66,22 +106,73 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
           to { transform: scale(1); }
         }
         .animate-scale-in { animation: scale-in 0.3s ease-out both; }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fade-in { animation: fade-in 0.3s ease-out both; }
+        @keyframes slide-in {
+          from { 
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-slide-in { animation: slide-in 0.3s ease-out both; }
       `}</style>
 
-      <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-800">
-        <TennisBall className="h-5 w-5 text-gray-600" />
-        Ball Map
-      </h2>
+      {/* Header with main mode toggle */}
+      <div className="mb-6 space-y-4">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
+          <TennisBall className="h-5 w-5 text-gray-600" />
+          Ball Map
+        </h2>
+
+        {/* Main mode selector */}
+        <div className="flex justify-center">
+          <div className="inline-flex rounded-xl bg-gray-100 p-1">
+            <button
+              onClick={() => setMainMode('ballHits')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                mainMode === 'ballHits'
+                  ? 'bg-white text-gray-800 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <Activity className="h-4 w-4" />
+              Ball Hits
+            </button>
+            <button
+              onClick={() => setMainMode('playerPosition')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                mainMode === 'playerPosition'
+                  ? 'bg-white text-gray-800 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <MapPin className="h-4 w-4" />
+              Player Position
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Player positions */}
-      <div className="mb-4 flex justify-center gap-3">
+      <div className="mb-6 flex justify-center gap-4">
         {players.map((player) => (
-          <div key={player.id} className="flex flex-col items-center">
-            <User
-              className={`h-6 w-6 ${
-                player.id === selectedPlayer ? 'text-blue-600' : 'text-gray-600'
-              }`}
-            />
+          <div key={player.id} className="flex flex-col items-center group cursor-pointer">
+            <div className={`transition-transform ${
+              player.id === selectedPlayer ? 'scale-110' : 'group-hover:scale-105'
+            }`}>
+              <User
+                className={`h-6 w-6 ${
+                  player.id === selectedPlayer ? 'text-blue-600' : 'text-gray-600'
+                }`}
+              />
+            </div>
             <span
               className={`mt-1 text-xs ${
                 player.id === selectedPlayer
@@ -95,48 +186,136 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
         ))}
       </div>
 
-      {/* Shot type filters */}
-      <div className="mb-4 grid grid-cols-3 gap-2">
-        {shotTypes.map((type) => (
-          <button
-            key={type.id}
-            onClick={() =>
-              setSelectedShot(selectedShot === type.id ? 'all' : type.id)
-            }
-            className={`rounded-lg px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
-              selectedShot === type.id
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {type.label}
-          </button>
-        ))}
-      </div>
+      {/* Controls based on main mode */}
+      {mainMode === 'ballHits' ? (
+        <div className="space-y-5 animate-slide-in mb-6">
+          {/* Shot type filters */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Filter by Shot</span>
+              {selectedShot !== 'all' && (
+                <button
+                  onClick={() => setSelectedShot('all')}
+                  className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                >
+                  Show all
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2 justify-center">
+              <button
+                onClick={() => setSelectedShot('all')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                  selectedShot === 'all'
+                    ? 'bg-gray-800 text-white'
+                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                }`}
+              >
+                All Shots
+              </button>
+              {shotTypes.map((type) => (
+                <button
+                  key={type.id}
+                  onClick={() => setSelectedShot(type.id)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                    selectedShot === type.id
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                  }`}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {/* Hit/Bounce toggle */}
-      <div className="mb-4 flex rounded-full bg-gray-100 p-1">
-        <button
-          onClick={() => setViewMode('hit')}
-          className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition-all ${
-            viewMode === 'hit'
-              ? 'bg-white text-gray-800 shadow-sm'
-              : 'text-gray-600'
-          }`}
-        >
-          HIT
-        </button>
-        <button
-          onClick={() => setViewMode('bounce')}
-          className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition-all ${
-            viewMode === 'bounce'
-              ? 'bg-white text-gray-800 shadow-sm'
-              : 'text-gray-600'
-          }`}
-        >
-          BOUNCE
-        </button>
-      </div>
+          {/* Hit/Bounce toggle */}
+          <div className="space-y-3">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">View Mode</span>
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={() => setViewMode('hit')}
+                className={`px-6 py-2 text-sm font-medium rounded-full transition-all ${
+                  viewMode === 'hit'
+                    ? 'bg-gray-800 text-white'
+                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                }`}
+              >
+                Hit Location
+              </button>
+              <button
+                onClick={() => setViewMode('bounce')}
+                className={`px-6 py-2 text-sm font-medium rounded-full transition-all ${
+                  viewMode === 'bounce'
+                    ? 'bg-gray-800 text-white'
+                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                }`}
+              >
+                Bounce Location
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-5 animate-slide-in mb-6">
+          {/* Heatmap view selector */}
+          <div className="space-y-3">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">Coverage View</span>
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={() => setHeatmapView('zones')}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  heatmapView === 'zones'
+                    ? 'bg-gray-800 text-white'
+                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                }`}
+              >
+                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="2" width="4" height="4" fill="currentColor" opacity="0.6" />
+                  <rect x="6" y="2" width="4" height="4" fill="currentColor" opacity="0.8" />
+                  <rect x="10" y="2" width="4" height="4" fill="currentColor" opacity="0.6" />
+                  <rect x="2" y="6" width="4" height="4" fill="currentColor" opacity="0.8" />
+                  <rect x="6" y="6" width="4" height="4" fill="currentColor" />
+                  <rect x="10" y="6" width="4" height="4" fill="currentColor" opacity="0.8" />
+                  <rect x="2" y="10" width="4" height="4" fill="currentColor" opacity="0.6" />
+                  <rect x="6" y="10" width="4" height="4" fill="currentColor" opacity="0.8" />
+                  <rect x="10" y="10" width="4" height="4" fill="currentColor" opacity="0.6" />
+                </svg>
+                Zones
+              </button>
+              <button
+                onClick={() => setHeatmapView('sides')}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  heatmapView === 'sides'
+                    ? 'bg-gray-800 text-white'
+                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                }`}
+              >
+                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="2" width="4" height="12" fill="currentColor" opacity="0.6" />
+                  <rect x="6" y="2" width="4" height="12" fill="currentColor" />
+                  <rect x="10" y="2" width="4" height="12" fill="currentColor" opacity="0.6" />
+                </svg>
+                Sides
+              </button>
+              <button
+                onClick={() => setHeatmapView('front-back')}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  heatmapView === 'front-back'
+                    ? 'bg-gray-800 text-white'
+                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                }`}
+              >
+                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="2" width="12" height="6" fill="currentColor" opacity="0.6" />
+                  <rect x="2" y="8" width="12" height="6" fill="currentColor" />
+                </svg>
+                Front-Back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Padel Court - Vertically Stretched */}
       <div className="relative overflow-hidden rounded-lg bg-blue-600 p-2">
@@ -147,6 +326,229 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
         >
           {/* Court background */}
           <rect x="0" y="0" width="100" height="170" fill="#2563eb" />
+
+          {/* Heatmap overlays - only on bottom half */}
+          {mainMode === 'playerPosition' && (
+            <>
+              {heatmapView === 'zones' && (
+                <g className="animate-fade-in">
+                  {/* Net zones (first row below net) */}
+                  <rect
+                    x="10"
+                    y="85"
+                    width="26.67"
+                    height="21.67"
+                    fill={getOverlayColor(heatmapData[0].value)}
+                  />
+                  <rect
+                    x="36.67"
+                    y="85"
+                    width="26.67"
+                    height="21.67"
+                    fill={getOverlayColor(heatmapData[1].value)}
+                  />
+                  <rect
+                    x="63.33"
+                    y="85"
+                    width="26.67"
+                    height="21.67"
+                    fill={getOverlayColor(heatmapData[2].value)}
+                  />
+                  
+                  {/* Transition zones (middle row) */}
+                  <rect
+                    x="10"
+                    y="106.67"
+                    width="26.67"
+                    height="21.67"
+                    fill={getOverlayColor(heatmapData[3].value)}
+                  />
+                  <rect
+                    x="36.67"
+                    y="106.67"
+                    width="26.67"
+                    height="21.67"
+                    fill={getOverlayColor(heatmapData[4].value)}
+                  />
+                  <rect
+                    x="63.33"
+                    y="106.67"
+                    width="26.67"
+                    height="21.67"
+                    fill={getOverlayColor(heatmapData[5].value)}
+                  />
+                  
+                  {/* Back zones (bottom row) */}
+                  <rect
+                    x="10"
+                    y="128.33"
+                    width="26.67"
+                    height="21.67"
+                    fill={getOverlayColor(heatmapData[6].value)}
+                  />
+                  <rect
+                    x="36.67"
+                    y="128.33"
+                    width="26.67"
+                    height="21.67"
+                    fill={getOverlayColor(heatmapData[7].value)}
+                  />
+                  <rect
+                    x="63.33"
+                    y="128.33"
+                    width="26.67"
+                    height="21.67"
+                    fill={getOverlayColor(heatmapData[8].value)}
+                  />
+                  
+                  {/* Percentage badges */}
+                  {heatmapData.map((data, index) => {
+                    const row = Math.floor(index / 3);
+                    const col = index % 3;
+                    const x = 23.33 + col * 26.67;
+                    const y = 95.83 + row * 21.67;
+                    return (
+                      <g key={index}>
+                        <rect
+                          x={x - 10}
+                          y={y - 6}
+                          width="20"
+                          height="12"
+                          rx="6"
+                          fill="white"
+                          stroke="#333"
+                          strokeWidth="0.5"
+                        />
+                        <text
+                          x={x}
+                          y={y + 2}
+                          textAnchor="middle"
+                          fontSize="8"
+                          fill="black"
+                          fontWeight="500"
+                        >
+                          {data.value}%
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
+              )}
+
+              {heatmapView === 'sides' && (
+                <g className="animate-fade-in">
+                  {/* Left Side */}
+                  <rect
+                    x="10"
+                    y="85"
+                    width="26.67"
+                    height="65"
+                    fill={getOverlayColor(heatmapData[0].value)}
+                  />
+                  
+                  {/* Middle Side */}
+                  <rect
+                    x="36.67"
+                    y="85"
+                    width="26.67"
+                    height="65"
+                    fill={getOverlayColor(heatmapData[1].value)}
+                  />
+                  
+                  {/* Right Side */}
+                  <rect
+                    x="63.33"
+                    y="85"
+                    width="26.67"
+                    height="65"
+                    fill={getOverlayColor(heatmapData[2].value)}
+                  />
+                  
+                  {/* Percentage badges */}
+                  {heatmapData.map((data, index) => {
+                    const x = 23.33 + index * 26.67;
+                    const y = 117.5;
+                    return (
+                      <g key={index}>
+                        <rect
+                          x={x - 10}
+                          y={y - 6}
+                          width="20"
+                          height="12"
+                          rx="6"
+                          fill="white"
+                          stroke="#333"
+                          strokeWidth="0.5"
+                        />
+                        <text
+                          x={x}
+                          y={y + 2}
+                          textAnchor="middle"
+                          fontSize="8"
+                          fill="black"
+                          fontWeight="500"
+                        >
+                          {data.value}%
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
+              )}
+
+              {heatmapView === 'front-back' && (
+                <g className="animate-fade-in">
+                  {/* Front (Net area) */}
+                  <rect
+                    x="10"
+                    y="85"
+                    width="80"
+                    height="32.5"
+                    fill={getOverlayColor(heatmapData[0].value)}
+                  />
+                  
+                  {/* Back */}
+                  <rect
+                    x="10"
+                    y="117.5"
+                    width="80"
+                    height="32.5"
+                    fill={getOverlayColor(heatmapData[1].value)}
+                  />
+                  
+                  {/* Percentage badges */}
+                  {heatmapData.map((data, index) => {
+                    const x = 70;
+                    const y = 101.25 + index * 32.5;
+                    return (
+                      <g key={index}>
+                        <rect
+                          x={x - 10}
+                          y={y - 6}
+                          width="20"
+                          height="12"
+                          rx="6"
+                          fill="white"
+                          stroke="#333"
+                          strokeWidth="0.5"
+                        />
+                        <text
+                          x={x}
+                          y={y + 2}
+                          textAnchor="middle"
+                          fontSize="8"
+                          fill="black"
+                          fontWeight="500"
+                        >
+                          {data.value}%
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
+              )}
+            </>
+          )}
 
           {/* Court lines */}
           {/* Center service line */}
@@ -212,8 +614,8 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
             opacity="0.5"
           />
 
-          {/* Shots */}
-          {filteredShots.map((shot, index) => (
+          {/* Shots - only show when in ball hits mode */}
+          {mainMode === 'ballHits' && filteredShots.map((shot, index) => (
             <g
               key={index}
               className="animate-scale-in"
@@ -254,19 +656,38 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
         </svg>
       </div>
 
-      {/* Legend */}
-      <div className="mt-4 flex justify-center gap-6">
-        <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full border border-white bg-yellow-400"></div>
-          <span className="text-xs text-gray-600">Your Team</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative h-3 w-3">
-            <div className="absolute inset-0 rotate-45 transform bg-red-500"></div>
-            <div className="absolute inset-0 -rotate-45 transform bg-red-500"></div>
+      {/* Dynamic legend/info based on mode */}
+      <div className="mt-6">
+        {mainMode === 'ballHits' ? (
+          <div className="flex flex-col items-center space-y-2">
+            <div className="flex justify-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full border border-white bg-yellow-400"></div>
+                <span className="text-xs text-gray-600">Your Team</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="relative h-3 w-3">
+                  <div className="absolute inset-0 rotate-45 transform bg-red-500"></div>
+                  <div className="absolute inset-0 -rotate-45 transform bg-red-500"></div>
+                </div>
+                <span className="text-xs text-gray-600">Opponents</span>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500">
+              {filteredShots.length} {viewMode === 'hit' ? 'hits' : 'bounces'} shown
+              {selectedShot !== 'all' && ` (${selectedShot} only)`}
+            </p>
           </div>
-          <span className="text-xs text-gray-600">Opponents</span>
-        </div>
+        ) : (
+          <div className="text-center space-y-1">
+            <p className="text-sm font-medium text-gray-700">
+              Player {selectedPlayer} Court Coverage
+            </p>
+            <p className="text-xs text-gray-500">
+              {heatmapView === 'zones' ? '9-zone' : heatmapView === 'sides' ? '3-column' : '2-row'} heatmap analysis
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

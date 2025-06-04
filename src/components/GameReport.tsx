@@ -94,30 +94,6 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
               </div>
               <p className="text-xl font-bold">{gameData.longestRally} shots</p>
             </div>
-            <div className="rounded-lg bg-white/20 p-3 backdrop-blur-sm">
-              <p className="text-xs opacity-90">Total Winners</p>
-              <p className="text-xl font-bold">
-                {gameData.yourWinners + gameData.teammateWinners}%
-              </p>
-            </div>
-            <div className="rounded-lg bg-white/20 p-3 backdrop-blur-sm">
-              <p className="text-xs opacity-90">Win Rate</p>
-              <p className="text-xl font-bold">
-                {Math.round(
-                  ((gameData.yourWinners + gameData.teammateWinners) /
-                    (gameData.yourWinners +
-                      gameData.teammateWinners +
-                      gameData.opponentLeftWinners +
-                      gameData.opponentRightWinners)) *
-                    100,
-                )}
-                %
-              </p>
-            </div>
-            <div className="rounded-lg bg-white/20 p-3 backdrop-blur-sm">
-              <p className="text-xs opacity-90">Team Hits</p>
-              <p className="text-xl font-bold">{gameData.teamHits}%</p>
-            </div>
           </div>
         </div>
 
