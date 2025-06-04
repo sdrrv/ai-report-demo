@@ -55,7 +55,11 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
           <div key={player.id} className="flex items-center gap-4">
             {/* Avatar */}
             <div
-              className={cn("relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-200", player.isMe && "border-slate-500 border-[2px]" )}>
+              className={cn(
+                'relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-200',
+                player.isMe && 'border-[2px] border-slate-500',
+              )}
+            >
               <User className="h-6 w-6 text-gray-500" />
             </div>
 
@@ -77,7 +81,9 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
               {/* Progress Bar */}
               <div className="relative h-2 overflow-hidden rounded-full bg-gray-200">
                 <div
-                  className={"absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ease-out bg-slate-600"}
+                  className={
+                    'absolute left-0 top-0 h-full rounded-full bg-slate-600 transition-all duration-1000 ease-out'
+                  }
                   style={{
                     width: `${animatedWidths[index] || 0}%`,
                     transitionDelay: `${index * 200}ms`,

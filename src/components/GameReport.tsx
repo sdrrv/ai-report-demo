@@ -1,10 +1,20 @@
 import React from 'react';
-import { Trophy, Target, Shield, Users, TrendingUp, Clock, Activity, Zap } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import {
+  Target,
+  Shield,
+  Users,
+  TrendingUp,
+  Clock,
+  Activity,
+  Zap,
+} from 'lucide-react';
 import CircleChart from './CircleChart';
 import DualCircleChart from './DualCircleChart';
 import BallMap from './BallMap';
 import SpeedCard from './SpeedCard';
 import ShotBreakdown from './ShotBreakdown';
+import DistanceCard from './PlayerDistance';
 
 interface GameData {
   offensive: number;
@@ -14,17 +24,19 @@ interface GameData {
   teammateWinners: number;
   opponentLeftWinners: number;
   opponentRightWinners: number;
-  timeInPlay: number; // in minutes
-  averageRally: number; // in shots
-  longestRally: number; // in shots
+  timeInPlay: number;
+  averageRally: number;
+  longestRally: number;
 }
 
-interface GameReportProps {
-  selectedPlayer: number;
-}
+const GameReport: React.FC = () => {
+  const { playerId } = useParams<{ playerId: string }>();
+  const selectedPlayer = playerId ? parseInt(playerId) : null;
 
-const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
-  // Sample data - you can replace with actual data based on selectedPlayer
+  if (!selectedPlayer || isNaN(selectedPlayer)) {
+    return <div className="p-4 text-red-500">Invalid player ID.</div>;
+  }
+
   const gameData: GameData = {
     offensive: 65,
     defensive: 35,
@@ -45,28 +57,13 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in { animation: fade-in 0.5s ease-out; }
         .animate-fade-in-delay-1 { animation: fade-in 0.5s ease-out 0.1s both; }
         .animate-fade-in-delay-2 { animation: fade-in 0.5s ease-out 0.2s both; }
         .animate-fade-in-delay-3 { animation: fade-in 0.5s ease-out 0.3s both; }
         .animate-fade-in-delay-4 { animation: fade-in 0.5s ease-out 0.4s both; }
-        .animate-fade-in-delay-5 { animation: fade-in 0.5s ease-out 0.5s both; }
-        .animate-fade-in-delay-6 { animation: fade-in 0.5s ease-out 0.6s both; }
       `}</style>
 
       <div className="mx-auto max-w-md">
-        {/* Header */}
-        <div className="animate-fade-in mb-4 rounded-2xl bg-white p-6 shadow-lg">
-          <div className="mb-2 flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-800">Game Report</h1>
-            <Trophy className="h-6 w-6 text-yellow-500" />
-          </div>
-          <p className="text-sm text-gray-500">
-            Player {selectedPlayer} - Match Analysis & Performance
-          </p>
-        </div>
-
-        {/* Match Summary - Moved to first position */}
         <div className="animate-fade-in-delay-1 mb-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Match Summary</h3>
@@ -74,21 +71,21 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-lg bg-white/20 p-3 backdrop-blur-sm">
-              <div className="flex items-center gap-1 mb-1">
+              <div className="mb-1 flex items-center gap-1">
                 <Clock className="h-4 w-4 opacity-80" />
                 <p className="text-xs opacity-90">Time in Play</p>
               </div>
               <p className="text-xl font-bold">{gameData.timeInPlay} min</p>
             </div>
             <div className="rounded-lg bg-white/20 p-3 backdrop-blur-sm">
-              <div className="flex items-center gap-1 mb-1">
+              <div className="mb-1 flex items-center gap-1">
                 <Activity className="h-4 w-4 opacity-80" />
                 <p className="text-xs opacity-90">Avg Rally</p>
               </div>
               <p className="text-xl font-bold">{gameData.averageRally} shots</p>
             </div>
             <div className="rounded-lg bg-white/20 p-3 backdrop-blur-sm">
-              <div className="flex items-center gap-1 mb-1">
+              <div className="mb-1 flex items-center gap-1">
                 <Zap className="h-4 w-4 opacity-80" />
                 <p className="text-xs opacity-90">Longest Rally</p>
               </div>
@@ -97,7 +94,6 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
           </div>
         </div>
 
-        {/* Shot Type Distribution */}
         <div className="animate-fade-in-delay-2 mb-4 rounded-2xl bg-white p-6 shadow-lg">
           <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-gray-800">
             <Target className="h-5 w-5 text-gray-600" />
@@ -112,16 +108,14 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
           </div>
         </div>
 
-        {/* Shot Breakdown */}
         <ShotBreakdown delay={600} />
 
-        {/* Team Performance */}
         <div className="animate-fade-in-delay-3 mb-4 rounded-2xl bg-white p-6 shadow-lg">
           <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-gray-800">
             <Users className="h-5 w-5 text-gray-600" />
             Team Performance
           </h2>
-          <div className="flex justify-around items-center">
+          <div className="flex items-center justify-around">
             <CircleChart
               percentage={gameData.teamHits}
               label="Team Hits"
@@ -150,7 +144,6 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
           </div>
         </div>
 
-        {/* Opponent Performance */}
         <div className="animate-fade-in-delay-4 rounded-2xl bg-white p-6 shadow-lg">
           <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-gray-800">
             <Shield className="h-5 w-5 text-gray-600" />
@@ -174,10 +167,8 @@ const GameReport: React.FC<GameReportProps> = ({ selectedPlayer }) => {
           </div>
         </div>
 
-        {/* Speed Card */}
         <SpeedCard delay={1800} />
-
-        {/* Ball Map */}
+        <DistanceCard />
         <BallMap selectedPlayer={selectedPlayer} />
       </div>
     </div>

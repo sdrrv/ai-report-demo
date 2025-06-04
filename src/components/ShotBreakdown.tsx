@@ -83,31 +83,33 @@ const ShotBreakdown: React.FC<ShotBreakdownProps> = ({ delay = 0 }) => {
       </div>
 
       <div className="space-y-3">
-        {shots.sort((a,b) => b.percentage - a.percentage).map((shot, index) => (
-          <div key={shot.name} className="flex items-center gap-4">
-            <div className="w-20 text-sm font-medium text-gray-700">
-              {shot.name}
-            </div>
+        {shots
+          .sort((a, b) => b.percentage - a.percentage)
+          .map((shot, index) => (
+            <div key={shot.name} className="flex items-center gap-4">
+              <div className="w-20 text-sm font-medium text-gray-700">
+                {shot.name}
+              </div>
 
-            <div className="relative flex-1">
-              <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-                <div
-                  className={`h-full rounded-full transition-all duration-1000 ease-out ${color}`}
-                  style={{
-                    width: `${animatedWidths[index] || 0}%`,
-                    transitionDelay: `${index * 150}ms`,
-                  }}
-                />
+              <div className="relative flex-1">
+                <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+                  <div
+                    className={`h-full rounded-full transition-all duration-1000 ease-out ${color}`}
+                    style={{
+                      width: `${animatedWidths[index] || 0}%`,
+                      transitionDelay: `${index * 150}ms`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="w-10 text-right">
+                <span className="text-sm font-semibold text-gray-900">
+                  {shot.percentage}%
+                </span>
               </div>
             </div>
-
-            <div className="w-10 text-right">
-              <span className="text-sm font-semibold text-gray-900">
-                {shot.percentage}%
-              </span>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );

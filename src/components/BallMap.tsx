@@ -23,7 +23,6 @@ interface BallMapProps {
 type HeatmapView = 'zones' | 'sides' | 'front-back';
 type MainMode = 'ballHits' | 'playerPosition';
 
-
 const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
   const [mainMode, setMainMode] = useState<MainMode>('ballHits');
   const [selectedShot, setSelectedShot] = useState<string>('all');
@@ -164,13 +163,22 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
       {/* Player positions */}
       <div className="mb-6 flex justify-center gap-4">
         {players.map((player) => (
-          <div key={player.id} className="flex flex-col items-center group cursor-pointer">
-            <div className={`transition-transform ${
-              player.id === selectedPlayer ? 'scale-110' : 'group-hover:scale-105'
-            }`}>
+          <div
+            key={player.id}
+            className="group flex cursor-pointer flex-col items-center"
+          >
+            <div
+              className={`transition-transform ${
+                player.id === selectedPlayer
+                  ? 'scale-110'
+                  : 'group-hover:scale-105'
+              }`}
+            >
               <User
                 className={`h-6 w-6 ${
-                  player.id === selectedPlayer ? 'text-blue-600' : 'text-gray-600'
+                  player.id === selectedPlayer
+                    ? 'text-blue-600'
+                    : 'text-gray-600'
                 }`}
               />
             </div>
@@ -189,27 +197,29 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
 
       {/* Controls based on main mode */}
       {mainMode === 'ballHits' ? (
-        <div className="space-y-5 animate-slide-in mb-6">
+        <div className="animate-slide-in mb-6 space-y-5">
           {/* Shot type filters */}
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Filter by Shot</span>
+              <span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                Filter by Shot
+              </span>
               {selectedShot !== 'all' && (
                 <button
                   onClick={() => setSelectedShot('all')}
-                  className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  className="text-xs font-medium text-blue-600 transition-colors hover:text-blue-700"
                 >
                   Show all
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap gap-2 justify-center">
+            <div className="flex flex-wrap justify-center gap-2">
               <button
                 onClick={() => setSelectedShot('all')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
                   selectedShot === 'all'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
                 }`}
               >
                 All Shots
@@ -218,10 +228,10 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                 <button
                   key={type.id}
                   onClick={() => setSelectedShot(type.id)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
                     selectedShot === type.id
                       ? 'bg-blue-500 text-white'
-                      : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                      : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
                   }`}
                 >
                   {type.label}
@@ -232,24 +242,26 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
 
           {/* Hit/Bounce toggle */}
           <div className="space-y-3">
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">View Mode</span>
+            <span className="px-1 text-xs font-medium uppercase tracking-wider text-gray-500">
+              View Mode
+            </span>
             <div className="flex justify-center gap-2">
               <button
                 onClick={() => setViewMode('hit')}
-                className={`px-6 py-2 text-sm font-medium rounded-full transition-all ${
+                className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${
                   viewMode === 'hit'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
                 }`}
               >
                 Hit Location
               </button>
               <button
                 onClick={() => setViewMode('bounce')}
-                className={`px-6 py-2 text-sm font-medium rounded-full transition-all ${
+                className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${
                   viewMode === 'bounce'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
                 }`}
               >
                 Bounce Location
@@ -258,29 +270,87 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
           </div>
         </div>
       ) : (
-        <div className="space-y-5 animate-slide-in mb-6">
+        <div className="animate-slide-in mb-6 space-y-5">
           {/* Heatmap view selector */}
           <div className="space-y-3">
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">Coverage View</span>
+            <span className="px-1 text-xs font-medium uppercase tracking-wider text-gray-500">
+              Coverage View
+            </span>
             <div className="flex justify-center gap-2">
               <button
                 onClick={() => setHeatmapView('zones')}
                 className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
                   heatmapView === 'zones'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
                 }`}
               >
-                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
-                  <rect x="2" y="2" width="4" height="4" fill="currentColor" opacity="0.6" />
-                  <rect x="6" y="2" width="4" height="4" fill="currentColor" opacity="0.8" />
-                  <rect x="10" y="2" width="4" height="4" fill="currentColor" opacity="0.6" />
-                  <rect x="2" y="6" width="4" height="4" fill="currentColor" opacity="0.8" />
+                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
+                  <rect
+                    x="2"
+                    y="2"
+                    width="4"
+                    height="4"
+                    fill="currentColor"
+                    opacity="0.6"
+                  />
+                  <rect
+                    x="6"
+                    y="2"
+                    width="4"
+                    height="4"
+                    fill="currentColor"
+                    opacity="0.8"
+                  />
+                  <rect
+                    x="10"
+                    y="2"
+                    width="4"
+                    height="4"
+                    fill="currentColor"
+                    opacity="0.6"
+                  />
+                  <rect
+                    x="2"
+                    y="6"
+                    width="4"
+                    height="4"
+                    fill="currentColor"
+                    opacity="0.8"
+                  />
                   <rect x="6" y="6" width="4" height="4" fill="currentColor" />
-                  <rect x="10" y="6" width="4" height="4" fill="currentColor" opacity="0.8" />
-                  <rect x="2" y="10" width="4" height="4" fill="currentColor" opacity="0.6" />
-                  <rect x="6" y="10" width="4" height="4" fill="currentColor" opacity="0.8" />
-                  <rect x="10" y="10" width="4" height="4" fill="currentColor" opacity="0.6" />
+                  <rect
+                    x="10"
+                    y="6"
+                    width="4"
+                    height="4"
+                    fill="currentColor"
+                    opacity="0.8"
+                  />
+                  <rect
+                    x="2"
+                    y="10"
+                    width="4"
+                    height="4"
+                    fill="currentColor"
+                    opacity="0.6"
+                  />
+                  <rect
+                    x="6"
+                    y="10"
+                    width="4"
+                    height="4"
+                    fill="currentColor"
+                    opacity="0.8"
+                  />
+                  <rect
+                    x="10"
+                    y="10"
+                    width="4"
+                    height="4"
+                    fill="currentColor"
+                    opacity="0.6"
+                  />
                 </svg>
                 Zones
               </button>
@@ -289,13 +359,27 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                 className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
                   heatmapView === 'sides'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
                 }`}
               >
-                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
-                  <rect x="2" y="2" width="4" height="12" fill="currentColor" opacity="0.6" />
+                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
+                  <rect
+                    x="2"
+                    y="2"
+                    width="4"
+                    height="12"
+                    fill="currentColor"
+                    opacity="0.6"
+                  />
                   <rect x="6" y="2" width="4" height="12" fill="currentColor" />
-                  <rect x="10" y="2" width="4" height="12" fill="currentColor" opacity="0.6" />
+                  <rect
+                    x="10"
+                    y="2"
+                    width="4"
+                    height="12"
+                    fill="currentColor"
+                    opacity="0.6"
+                  />
                 </svg>
                 Sides
               </button>
@@ -304,11 +388,18 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                 className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
                   heatmapView === 'front-back'
                     ? 'bg-gray-800 text-white'
-                    : 'bg-white text-gray-600 hover:text-gray-800 border border-gray-300'
+                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
                 }`}
               >
-                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
-                  <rect x="2" y="2" width="12" height="6" fill="currentColor" opacity="0.6" />
+                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
+                  <rect
+                    x="2"
+                    y="2"
+                    width="12"
+                    height="6"
+                    fill="currentColor"
+                    opacity="0.6"
+                  />
                   <rect x="2" y="8" width="12" height="6" fill="currentColor" />
                 </svg>
                 Front-Back
@@ -418,7 +509,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                     height="21.67"
                     fill={getOverlayColor(heatmapData[2].value)}
                   />
-                  
+
                   {/* Transition zones (middle row) */}
                   <rect
                     x="10"
@@ -441,7 +532,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                     height="21.67"
                     fill={getOverlayColor(heatmapData[5].value)}
                   />
-                  
+
                   {/* Back zones (bottom row) */}
                   <rect
                     x="10"
@@ -477,7 +568,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                     height="65"
                     fill={getOverlayColor(heatmapData[0].value)}
                   />
-                  
+
                   {/* Middle Side */}
                   <rect
                     x="36.67"
@@ -486,7 +577,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                     height="65"
                     fill={getOverlayColor(heatmapData[1].value)}
                   />
-                  
+
                   {/* Right Side */}
                   <rect
                     x="63.33"
@@ -508,7 +599,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                     height="32.5"
                     fill={getOverlayColor(heatmapData[0].value)}
                   />
-                  
+
                   {/* Back */}
                   <rect
                     x="10"
@@ -523,44 +614,45 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
           )}
 
           {/* Shots - only show when in ball hits mode */}
-          {mainMode === 'ballHits' && filteredShots.map((shot, index) => (
-            <g
-              key={index}
-              className="animate-scale-in"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              {shot.team === 'yours' ? (
-                <circle
-                  cx={shot.x}
-                  cy={shot.y}
-                  r="2"
-                  fill="#fbbf24"
-                  stroke="white"
-                  strokeWidth="0.5"
-                  className="hover:r-3 cursor-pointer transition-all"
-                />
-              ) : (
-                <g>
-                  <line
-                    x1={shot.x - 2}
-                    y1={shot.y - 2}
-                    x2={shot.x + 2}
-                    y2={shot.y + 2}
-                    stroke="#ef4444"
-                    strokeWidth="1.5"
+          {mainMode === 'ballHits' &&
+            filteredShots.map((shot, index) => (
+              <g
+                key={index}
+                className="animate-scale-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                {shot.team === 'yours' ? (
+                  <circle
+                    cx={shot.x}
+                    cy={shot.y}
+                    r="2"
+                    fill="#fbbf24"
+                    stroke="white"
+                    strokeWidth="0.5"
+                    className="hover:r-3 cursor-pointer transition-all"
                   />
-                  <line
-                    x1={shot.x - 2}
-                    y1={shot.y + 2}
-                    x2={shot.x + 2}
-                    y2={shot.y - 2}
-                    stroke="#ef4444"
-                    strokeWidth="1.5"
-                  />
-                </g>
-              )}
-            </g>
-          ))}
+                ) : (
+                  <g>
+                    <line
+                      x1={shot.x - 2}
+                      y1={shot.y - 2}
+                      x2={shot.x + 2}
+                      y2={shot.y + 2}
+                      stroke="#ef4444"
+                      strokeWidth="1.5"
+                    />
+                    <line
+                      x1={shot.x - 2}
+                      y1={shot.y + 2}
+                      x2={shot.x + 2}
+                      y2={shot.y - 2}
+                      stroke="#ef4444"
+                      strokeWidth="1.5"
+                    />
+                  </g>
+                )}
+              </g>
+            ))}
 
           {/* Heatmap text labels - moved to the end so they appear on top */}
           {mainMode === 'playerPosition' && (
@@ -670,17 +762,23 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               </div>
             </div>
             <p className="text-xs text-gray-500">
-              {filteredShots.length} {viewMode === 'hit' ? 'hits' : 'bounces'} shown
+              {filteredShots.length} {viewMode === 'hit' ? 'hits' : 'bounces'}{' '}
+              shown
               {selectedShot !== 'all' && ` (${selectedShot} only)`}
             </p>
           </div>
         ) : (
-          <div className="text-center space-y-1">
+          <div className="space-y-1 text-center">
             <p className="text-sm font-medium text-gray-700">
               Player {selectedPlayer} Court Coverage
             </p>
             <p className="text-xs text-gray-500">
-              {heatmapView === 'zones' ? '9-zone' : heatmapView === 'sides' ? '3-column' : '2-row'} heatmap analysis
+              {heatmapView === 'zones'
+                ? '9-zone'
+                : heatmapView === 'sides'
+                  ? '3-column'
+                  : '2-row'}{' '}
+              heatmap analysis
             </p>
           </div>
         )}

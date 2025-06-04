@@ -1,17 +1,12 @@
-// Alternative EntryPage.tsx with image support
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
-interface EntryPageProps {
-  onPlayerSelect: (playerId: number) => void;
-}
-
-const EntryPage: React.FC<EntryPageProps> = ({ onPlayerSelect }) => {
+const EntryPage: React.FC = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const navigate = useNavigate();
 
-  // Replace these with actual image URLs
   const players = [
     {
       id: 1,
@@ -47,7 +42,7 @@ const EntryPage: React.FC<EntryPageProps> = ({ onPlayerSelect }) => {
     if (selectedPlayer) {
       setIsTransitioning(true);
       setTimeout(() => {
-        onPlayerSelect(selectedPlayer);
+        navigate(`/report/${selectedPlayer}`);
       }, 300);
     }
   };
@@ -77,7 +72,6 @@ const EntryPage: React.FC<EntryPageProps> = ({ onPlayerSelect }) => {
       `}</style>
 
       <div className="w-full max-w-2xl">
-        {/* Header */}
         <div className="animate-fade-in mb-8 text-center">
           <h1 className="mb-2 text-4xl font-bold text-gray-800">
             Welcome to Padel AI Report
@@ -87,7 +81,6 @@ const EntryPage: React.FC<EntryPageProps> = ({ onPlayerSelect }) => {
           </p>
         </div>
 
-        {/* Player Grid */}
         <div className="animate-scale-in mb-8 grid grid-cols-2 gap-4">
           {players.map((player, index) => (
             <button
@@ -100,18 +93,15 @@ const EntryPage: React.FC<EntryPageProps> = ({ onPlayerSelect }) => {
               }`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              {/* Player image */}
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={player.image}
                   alt={player.name}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
-                {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </div>
 
-              {/* Player info */}
               <div className="p-4">
                 <h3 className="mb-1 text-xl font-semibold text-gray-800">
                   {player.name}
@@ -127,7 +117,6 @@ const EntryPage: React.FC<EntryPageProps> = ({ onPlayerSelect }) => {
                 </p>
               </div>
 
-              {/* Selection indicator */}
               {selectedPlayer === player.id && (
                 <div className="absolute right-4 top-4">
                   <div className="rounded-full bg-blue-500 p-2 text-white shadow-lg">
@@ -151,7 +140,6 @@ const EntryPage: React.FC<EntryPageProps> = ({ onPlayerSelect }) => {
           ))}
         </div>
 
-        {/* Continue button */}
         <div className="flex justify-center">
           <button
             onClick={handleContinue}
