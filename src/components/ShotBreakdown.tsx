@@ -70,7 +70,7 @@ const ShotBreakdown: React.FC<ShotBreakdownProps> = ({ delay = 0 }) => {
     color,
   }: {
     title: string;
-    icon: React.ElementType;
+    icon: React.ComponentType<{ className?: string }>;
     shots: ShotData[];
     animatedWidths: number[];
     color: string;
