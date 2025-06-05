@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Activity, MapPin } from 'lucide-react';
 import { TennisBall } from '@/assets/icons/TennisBall';
 
@@ -17,17 +17,29 @@ interface Shot {
 }
 
 interface BallMapProps {
-  selectedPlayer: number;
+  delay?: number;
 }
 
 type HeatmapView = 'zones' | 'sides' | 'front-back';
 type MainMode = 'ballHits' | 'playerPosition';
 
-const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
+const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
   const [mainMode, setMainMode] = useState<MainMode>('ballHits');
   const [selectedShot, setSelectedShot] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'hit' | 'bounce'>('hit');
   const [heatmapView, setHeatmapView] = useState<HeatmapView>('zones');
+  const [animatedShots, setAnimatedShots] = useState(false);
+
+  // Internal selected player state (matching SpeedCard pattern)
+  const selectedPlayer = 1; // You
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimatedShots(true);
+    }, delay + 400);
+
+    return () => clearTimeout(timer);
+  }, [delay]);
 
   // Sample shot data - adjusted for half court (y coordinates now relative to half court)
   const shots: Shot[] = [
@@ -99,47 +111,35 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
   };
 
   return (
-    <div className="animate-fade-in-delay-4 mb-4 mt-4 rounded-2xl bg-white p-4 shadow-lg sm:p-6">
-      <style>{`
-        @keyframes scale-in {
-          from { transform: scale(0); }
-          to { transform: scale(1); }
-        }
-        .animate-scale-in { animation: scale-in 0.3s ease-out both; }
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-fade-in { animation: fade-in 0.3s ease-out both; }
-        @keyframes slide-in {
-          from { 
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slide-in { animation: slide-in 0.3s ease-out both; }
-      `}</style>
-
+    <div
+      className="mt-4 rounded-2xl border border-slate-200/50 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-lg"
+      style={{
+        animation: `fade-in 0.5s ease-out ${delay}ms both`,
+      }}
+    >
       {/* Header with main mode toggle */}
       <div className="mb-6 space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
-          <TennisBall className="h-5 w-5 text-gray-600" />
-          Ball Map
-        </h2>
+        <div className="mb-1 flex items-center gap-3">
+          <div className="rounded-lg bg-slate-600 p-2">
+            <TennisBall className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-slate-800">Ball Map</h2>
+            <p className="text-sm text-slate-500">
+              Track ball hits and player positioning
+            </p>
+          </div>
+        </div>
 
         {/* Main mode selector */}
         <div className="flex justify-center">
-          <div className="inline-flex rounded-xl bg-gray-100 p-1">
+          <div className="inline-flex rounded-xl bg-slate-100 p-1">
             <button
               onClick={() => setMainMode('ballHits')}
               className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
                 mainMode === 'ballHits'
-                  ? 'bg-white text-gray-800 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
               }`}
             >
               <Activity className="h-4 w-4" />
@@ -149,8 +149,8 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               onClick={() => setMainMode('playerPosition')}
               className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
                 mainMode === 'playerPosition'
-                  ? 'bg-white text-gray-800 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
               }`}
             >
               <MapPin className="h-4 w-4" />
@@ -177,7 +177,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               <User
                 className={`h-6 w-6 ${
                   player.id === selectedPlayer
-                    ? 'text-blue-600'
+                    ? 'text-sky-500'
                     : 'text-gray-600'
                 }`}
               />
@@ -185,7 +185,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
             <span
               className={`mt-1 text-xs ${
                 player.id === selectedPlayer
-                  ? 'font-semibold text-blue-600'
+                  ? 'font-semibold text-sky-500'
                   : 'text-gray-500'
               }`}
             >
@@ -197,7 +197,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
 
       {/* Controls based on main mode */}
       {mainMode === 'ballHits' ? (
-        <div className="animate-slide-in mb-6 space-y-5">
+        <div className="mb-6 space-y-5 transition-all duration-300">
           {/* Shot type filters */}
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
@@ -207,7 +207,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               {selectedShot !== 'all' && (
                 <button
                   onClick={() => setSelectedShot('all')}
-                  className="text-xs font-medium text-blue-600 transition-colors hover:text-blue-700"
+                  className="text-xs font-medium text-sky-500 transition-colors hover:text-sky-600"
                 >
                   Show all
                 </button>
@@ -216,10 +216,10 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
             <div className="flex flex-wrap justify-center gap-2">
               <button
                 onClick={() => setSelectedShot('all')}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                className={`rounded-lg px-3.5 py-2 text-xs font-medium transition-all ${
                   selectedShot === 'all'
-                    ? 'bg-gray-800 text-white'
-                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : 'bg-white text-slate-600 shadow-sm hover:text-slate-800 hover:shadow-md'
                 }`}
               >
                 All Shots
@@ -228,10 +228,10 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                 <button
                   key={type.id}
                   onClick={() => setSelectedShot(type.id)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                  className={`rounded-lg px-3.5 py-2 text-xs font-medium transition-all ${
                     selectedShot === type.id
-                      ? 'bg-blue-500 text-white'
-                      : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
+                      ? 'bg-slate-600 text-white shadow-sm'
+                      : 'bg-white text-slate-600 shadow-sm hover:text-slate-800 hover:shadow-md'
                   }`}
                 >
                   {type.label}
@@ -248,20 +248,20 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
             <div className="flex justify-center gap-2">
               <button
                 onClick={() => setViewMode('hit')}
-                className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${
+                className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all ${
                   viewMode === 'hit'
-                    ? 'bg-gray-800 text-white'
-                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : 'bg-white text-slate-600 shadow-sm hover:text-slate-800 hover:shadow-md'
                 }`}
               >
                 Hit Location
               </button>
               <button
                 onClick={() => setViewMode('bounce')}
-                className={`rounded-full px-6 py-2 text-sm font-medium transition-all ${
+                className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all ${
                   viewMode === 'bounce'
-                    ? 'bg-gray-800 text-white'
-                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : 'bg-white text-slate-600 shadow-sm hover:text-slate-800 hover:shadow-md'
                 }`}
               >
                 Bounce Location
@@ -270,7 +270,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
           </div>
         </div>
       ) : (
-        <div className="animate-slide-in mb-6 space-y-5">
+        <div className="mb-6 space-y-5 transition-all duration-300">
           {/* Heatmap view selector */}
           <div className="space-y-3">
             <span className="px-1 text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -279,10 +279,10 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
             <div className="flex justify-center gap-2">
               <button
                 onClick={() => setHeatmapView('zones')}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
                   heatmapView === 'zones'
-                    ? 'bg-gray-800 text-white'
-                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : 'bg-white text-slate-600 shadow-sm hover:text-slate-800 hover:shadow-md'
                 }`}
               >
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
@@ -356,10 +356,10 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               </button>
               <button
                 onClick={() => setHeatmapView('sides')}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
                   heatmapView === 'sides'
-                    ? 'bg-gray-800 text-white'
-                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : 'bg-white text-slate-600 shadow-sm hover:text-slate-800 hover:shadow-md'
                 }`}
               >
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
@@ -385,10 +385,10 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               </button>
               <button
                 onClick={() => setHeatmapView('front-back')}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
                   heatmapView === 'front-back'
-                    ? 'bg-gray-800 text-white'
-                    : 'border border-gray-300 bg-white text-gray-600 hover:text-gray-800'
+                    ? 'bg-slate-600 text-white shadow-sm'
+                    : 'bg-white text-slate-600 shadow-sm hover:text-slate-800 hover:shadow-md'
                 }`}
               >
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
@@ -462,7 +462,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
           {mainMode === 'playerPosition' && (
             <>
               {heatmapView === 'zones' && (
-                <g className="animate-fade-in">
+                <g className="transition-opacity duration-300">
                   {/* Net zones (first row) */}
                   <rect
                     x="10"
@@ -535,7 +535,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               )}
 
               {heatmapView === 'sides' && (
-                <g className="animate-fade-in">
+                <g className="transition-opacity duration-300">
                   {/* Left Side */}
                   <rect
                     x="10"
@@ -566,7 +566,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               )}
 
               {heatmapView === 'front-back' && (
-                <g className="animate-fade-in">
+                <g className="transition-opacity duration-300">
                   {/* Front (Net area) */}
                   <rect
                     x="10"
@@ -594,8 +594,12 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
             filteredShots.map((shot, index) => (
               <g
                 key={index}
-                className="animate-scale-in"
-                style={{ animationDelay: `${index * 50}ms` }}
+                style={{
+                  opacity: animatedShots ? 1 : 0,
+                  transform: animatedShots ? 'scale(1)' : 'scale(0)',
+                  transition: `all 0.3s ease-out ${index * 50}ms`,
+                  transformOrigin: `${shot.x}px ${shot.y}px`,
+                }}
               >
                 {shot.team === 'yours' ? (
                   <circle
@@ -634,7 +638,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
           {mainMode === 'playerPosition' && (
             <>
               {heatmapView === 'zones' && (
-                <g className="animate-fade-in">
+                <g className="transition-opacity duration-300">
                   {/* Percentage badges */}
                   {heatmapData.map((data, index) => {
                     const row = Math.floor(index / 3);
@@ -663,7 +667,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               )}
 
               {heatmapView === 'sides' && (
-                <g className="animate-fade-in">
+                <g className="transition-opacity duration-300">
                   {/* Percentage badges */}
                   {heatmapData.map((data, index) => {
                     const x = 23.33 + index * 26.67;
@@ -690,7 +694,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
               )}
 
               {heatmapView === 'front-back' && (
-                <g className="animate-fade-in">
+                <g className="transition-opacity duration-300">
                   {/* Percentage badges */}
                   {heatmapData.map((data, index) => {
                     const x = 70;
@@ -721,7 +725,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
       </div>
 
       {/* Dynamic legend/info based on mode */}
-      <div className="mt-6">
+      <div className="mt-6 border-t border-slate-200 pt-4">
         {mainMode === 'ballHits' ? (
           <div className="flex flex-col items-center space-y-2">
             <div className="flex justify-center gap-6">
@@ -762,5 +766,21 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
     </div>
   );
 };
+
+// Add the fade-in animation styles
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+document.head.appendChild(style);
 
 export default BallMap;
