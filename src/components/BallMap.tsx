@@ -12,8 +12,7 @@ interface Shot {
     | 'backhandVolley'
     | 'serve'
     | 'overhead';
-  result: 'hit' | 'bounce';
-  team: 'yours' | 'opponent';
+  result: 'groundBounce' | 'interception';
 }
 
 interface BallMapProps {
@@ -26,9 +25,12 @@ type MainMode = 'ballHits' | 'playerPosition';
 const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
   const [mainMode, setMainMode] = useState<MainMode>('ballHits');
   const [selectedShot, setSelectedShot] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'hit' | 'bounce'>('hit');
   const [heatmapView, setHeatmapView] = useState<HeatmapView>('zones');
   const [animatedShots, setAnimatedShots] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [displayMode, setDisplayMode] = useState<MainMode>('ballHits');
+  const [isFilterTransitioning, setIsFilterTransitioning] = useState(false);
+  const [displayShot, setDisplayShot] = useState<string>('all');
 
   // Internal selected player state (matching SpeedCard pattern)
   const selectedPlayer = 1; // You
@@ -41,16 +43,54 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
     return () => clearTimeout(timer);
   }, [delay]);
 
+  // Handle smooth mode transition
+  const handleModeChange = (newMode: MainMode) => {
+    if (newMode === mainMode) return;
+
+    setIsTransitioning(true);
+
+    // Start transition out
+    setTimeout(() => {
+      setMainMode(newMode);
+      setDisplayMode(newMode);
+
+      // Start transition in
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 50);
+    }, 300);
+  };
+
+  // Handle smooth filter transition
+  const handleFilterChange = (newFilter: string) => {
+    if (newFilter === selectedShot) return;
+
+    setIsFilterTransitioning(true);
+
+    // Start transition out
+    setTimeout(() => {
+      setSelectedShot(newFilter);
+      setDisplayShot(newFilter);
+
+      // Start transition in
+      setTimeout(() => {
+        setIsFilterTransitioning(false);
+      }, 50);
+    }, 200);
+  };
+
   // Sample shot data - adjusted for half court (y coordinates now relative to half court)
   const shots: Shot[] = [
-    { x: 75, y: 20, type: 'forehand', result: 'hit', team: 'yours' },
-    { x: 80, y: 35, type: 'backhand', result: 'hit', team: 'yours' },
-    { x: 70, y: 50, type: 'forehand', result: 'hit', team: 'yours' },
-    { x: 25, y: 15, type: 'forehand', result: 'hit', team: 'opponent' },
-    { x: 20, y: 45, type: 'backhand', result: 'hit', team: 'opponent' },
-    { x: 30, y: 70, type: 'serve', result: 'hit', team: 'opponent' },
-    { x: 85, y: 25, type: 'overhead', result: 'hit', team: 'yours' },
-    { x: 90, y: 40, type: 'forehandVolley', result: 'bounce', team: 'yours' },
+    { x: 75, y: 20, type: 'forehand', result: 'groundBounce' },
+    { x: 80, y: 35, type: 'backhand', result: 'interception' },
+    { x: 70, y: 50, type: 'forehand', result: 'groundBounce' },
+    { x: 25, y: 15, type: 'forehand', result: 'interception' },
+    { x: 20, y: 45, type: 'backhand', result: 'groundBounce' },
+    { x: 30, y: 70, type: 'serve', result: 'groundBounce' },
+    { x: 85, y: 25, type: 'overhead', result: 'interception' },
+    { x: 90, y: 40, type: 'forehandVolley', result: 'interception' },
+    { x: 45, y: 30, type: 'backhand', result: 'groundBounce' },
+    { x: 55, y: 60, type: 'forehand', result: 'interception' },
   ];
 
   const shotTypes = [
@@ -63,9 +103,8 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
   ];
 
   const filteredShots = shots.filter((shot) => {
-    const matchesType = selectedShot === 'all' || shot.type === selectedShot;
-    const matchesMode = shot.result === viewMode;
-    return matchesType && matchesMode;
+    const matchesType = displayShot === 'all' || shot.type === displayShot;
+    return matchesType;
   });
 
   const players = [
@@ -135,8 +174,8 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
         <div className="flex justify-center">
           <div className="inline-flex rounded-xl bg-slate-100 p-1">
             <button
-              onClick={() => setMainMode('ballHits')}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+              onClick={() => handleModeChange('ballHits')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-300 ${
                 mainMode === 'ballHits'
                   ? 'bg-white text-slate-800 shadow-sm'
                   : 'text-slate-600 hover:text-slate-800'
@@ -146,8 +185,8 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
               Ball Hits
             </button>
             <button
-              onClick={() => setMainMode('playerPosition')}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+              onClick={() => handleModeChange('playerPosition')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-300 ${
                 mainMode === 'playerPosition'
                   ? 'bg-white text-slate-800 shadow-sm'
                   : 'text-slate-600 hover:text-slate-800'
@@ -195,9 +234,16 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
         ))}
       </div>
 
-      {/* Controls based on main mode */}
-      {mainMode === 'ballHits' ? (
-        <div className="mb-6 space-y-5 transition-all duration-300">
+      {/* Controls container with fixed height to prevent jumping */}
+      <div className="relative z-20 mb-5" style={{ minHeight: '140px' }}>
+        {/* Ball Hits Controls */}
+        <div
+          className={`absolute inset-0 z-20 space-y-5 transition-all duration-300 ${
+            displayMode === 'ballHits' && !isTransitioning
+              ? 'scale-100 opacity-100'
+              : 'pointer-events-none scale-95 opacity-0'
+          }`}
+        >
           {/* Shot type filters */}
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
@@ -206,16 +252,20 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
               </span>
               {selectedShot !== 'all' && (
                 <button
-                  onClick={() => setSelectedShot('all')}
+                  onClick={() => handleFilterChange('all')}
                   className="text-xs font-medium text-sky-500 transition-colors hover:text-sky-600"
                 >
                   Show all
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div
+              className={`flex flex-wrap justify-center gap-2 transition-opacity duration-200 ${
+                isFilterTransitioning ? 'opacity-60' : 'opacity-100'
+              }`}
+            >
               <button
-                onClick={() => setSelectedShot('all')}
+                onClick={() => handleFilterChange('all')}
                 className={`rounded-lg px-3.5 py-2 text-xs font-medium transition-all ${
                   selectedShot === 'all'
                     ? 'bg-slate-600 text-white shadow-sm'
@@ -227,7 +277,7 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
               {shotTypes.map((type) => (
                 <button
                   key={type.id}
-                  onClick={() => setSelectedShot(type.id)}
+                  onClick={() => handleFilterChange(type.id)}
                   className={`rounded-lg px-3.5 py-2 text-xs font-medium transition-all ${
                     selectedShot === type.id
                       ? 'bg-slate-600 text-white shadow-sm'
@@ -239,38 +289,16 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
               ))}
             </div>
           </div>
-
-          {/* Hit/Bounce toggle */}
-          <div className="space-y-3">
-            <span className="px-1 text-xs font-medium uppercase tracking-wider text-gray-500">
-              View Mode
-            </span>
-            <div className="flex justify-center gap-2">
-              <button
-                onClick={() => setViewMode('hit')}
-                className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all ${
-                  viewMode === 'hit'
-                    ? 'bg-slate-600 text-white shadow-sm'
-                    : 'bg-white text-slate-600 shadow-sm hover:text-slate-800 hover:shadow-md'
-                }`}
-              >
-                Hit Location
-              </button>
-              <button
-                onClick={() => setViewMode('bounce')}
-                className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all ${
-                  viewMode === 'bounce'
-                    ? 'bg-slate-600 text-white shadow-sm'
-                    : 'bg-white text-slate-600 shadow-sm hover:text-slate-800 hover:shadow-md'
-                }`}
-              >
-                Bounce Location
-              </button>
-            </div>
-          </div>
         </div>
-      ) : (
-        <div className="mb-6 space-y-5 transition-all duration-300">
+
+        {/* Player Position Controls */}
+        <div
+          className={`absolute inset-0 space-y-5 transition-all duration-300 ${
+            displayMode === 'playerPosition' && !isTransitioning
+              ? 'scale-100 opacity-100'
+              : 'pointer-events-none scale-95 opacity-0'
+          }`}
+        >
           {/* Heatmap view selector */}
           <div className="space-y-3">
             <span className="px-1 text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -407,10 +435,10 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Half Padel Court */}
-      <div className="relative overflow-hidden rounded-lg bg-slate-600 p-2 pt-8">
+      {/* Half Padel Court  */}
+      <div className=" relative z-10 overflow-hidden rounded-lg bg-slate-600 p-2 pt-8">
         <svg
           viewBox="0 0 100 85"
           className="h-auto w-full"
@@ -459,309 +487,360 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
           />
 
           {/* Heatmap overlays (rectangles only) */}
-          {mainMode === 'playerPosition' && (
-            <>
-              {heatmapView === 'zones' && (
-                <g className="transition-opacity duration-300">
-                  {/* Net zones (first row) */}
-                  <rect
-                    x="10"
-                    y="0"
-                    width="26.67"
-                    height="25"
-                    fill={getOverlayColor(heatmapData[0].value)}
-                  />
-                  <rect
-                    x="36.67"
-                    y="0"
-                    width="26.67"
-                    height="25"
-                    fill={getOverlayColor(heatmapData[1].value)}
-                  />
-                  <rect
-                    x="63.33"
-                    y="0"
-                    width="26.67"
-                    height="25"
-                    fill={getOverlayColor(heatmapData[2].value)}
-                  />
+          <g
+            className={`transition-all duration-500 ${
+              displayMode === 'playerPosition' && !isTransitioning
+                ? 'opacity-100'
+                : 'opacity-0'
+            }`}
+          >
+            {heatmapView === 'zones' && (
+              <g>
+                {/* Net zones (first row) */}
+                <rect
+                  x="10"
+                  y="0"
+                  width="26.67"
+                  height="25"
+                  fill={getOverlayColor(heatmapData[0].value)}
+                />
+                <rect
+                  x="36.67"
+                  y="0"
+                  width="26.67"
+                  height="25"
+                  fill={getOverlayColor(heatmapData[1].value)}
+                />
+                <rect
+                  x="63.33"
+                  y="0"
+                  width="26.67"
+                  height="25"
+                  fill={getOverlayColor(heatmapData[2].value)}
+                />
 
-                  {/* Transition zones (middle row) */}
-                  <rect
-                    x="10"
-                    y="25"
-                    width="26.67"
-                    height="25"
-                    fill={getOverlayColor(heatmapData[3].value)}
-                  />
-                  <rect
-                    x="36.67"
-                    y="25"
-                    width="26.67"
-                    height="25"
-                    fill={getOverlayColor(heatmapData[4].value)}
-                  />
-                  <rect
-                    x="63.33"
-                    y="25"
-                    width="26.67"
-                    height="25"
-                    fill={getOverlayColor(heatmapData[5].value)}
-                  />
+                {/* Transition zones (middle row) */}
+                <rect
+                  x="10"
+                  y="25"
+                  width="26.67"
+                  height="25"
+                  fill={getOverlayColor(heatmapData[3].value)}
+                />
+                <rect
+                  x="36.67"
+                  y="25"
+                  width="26.67"
+                  height="25"
+                  fill={getOverlayColor(heatmapData[4].value)}
+                />
+                <rect
+                  x="63.33"
+                  y="25"
+                  width="26.67"
+                  height="25"
+                  fill={getOverlayColor(heatmapData[5].value)}
+                />
 
-                  {/* Back zones (bottom row) */}
-                  <rect
-                    x="10"
-                    y="50"
-                    width="26.67"
-                    height="25"
-                    fill={getOverlayColor(heatmapData[6].value)}
-                  />
-                  <rect
-                    x="36.67"
-                    y="50"
-                    width="26.67"
-                    height="25"
-                    fill={getOverlayColor(heatmapData[7].value)}
-                  />
-                  <rect
-                    x="63.33"
-                    y="50"
-                    width="26.67"
-                    height="25"
-                    fill={getOverlayColor(heatmapData[8].value)}
-                  />
-                </g>
-              )}
+                {/* Back zones (bottom row) */}
+                <rect
+                  x="10"
+                  y="50"
+                  width="26.67"
+                  height="25"
+                  fill={getOverlayColor(heatmapData[6].value)}
+                />
+                <rect
+                  x="36.67"
+                  y="50"
+                  width="26.67"
+                  height="25"
+                  fill={getOverlayColor(heatmapData[7].value)}
+                />
+                <rect
+                  x="63.33"
+                  y="50"
+                  width="26.67"
+                  height="25"
+                  fill={getOverlayColor(heatmapData[8].value)}
+                />
+              </g>
+            )}
 
-              {heatmapView === 'sides' && (
-                <g className="transition-opacity duration-300">
-                  {/* Left Side */}
-                  <rect
-                    x="10"
-                    y="0"
-                    width="26.67"
-                    height="75"
-                    fill={getOverlayColor(heatmapData[0].value)}
-                  />
+            {heatmapView === 'sides' && (
+              <g>
+                {/* Left Side */}
+                <rect
+                  x="10"
+                  y="0"
+                  width="26.67"
+                  height="75"
+                  fill={getOverlayColor(heatmapData[0].value)}
+                />
 
-                  {/* Middle Side */}
-                  <rect
-                    x="36.67"
-                    y="0"
-                    width="26.67"
-                    height="75"
-                    fill={getOverlayColor(heatmapData[1].value)}
-                  />
+                {/* Middle Side */}
+                <rect
+                  x="36.67"
+                  y="0"
+                  width="26.67"
+                  height="75"
+                  fill={getOverlayColor(heatmapData[1].value)}
+                />
 
-                  {/* Right Side */}
-                  <rect
-                    x="63.33"
-                    y="0"
-                    width="26.67"
-                    height="75"
-                    fill={getOverlayColor(heatmapData[2].value)}
-                  />
-                </g>
-              )}
+                {/* Right Side */}
+                <rect
+                  x="63.33"
+                  y="0"
+                  width="26.67"
+                  height="75"
+                  fill={getOverlayColor(heatmapData[2].value)}
+                />
+              </g>
+            )}
 
-              {heatmapView === 'front-back' && (
-                <g className="transition-opacity duration-300">
-                  {/* Front (Net area) */}
-                  <rect
-                    x="10"
-                    y="0"
-                    width="80"
-                    height="37.5"
-                    fill={getOverlayColor(heatmapData[0].value)}
-                  />
+            {heatmapView === 'front-back' && (
+              <g>
+                {/* Front (Net area) */}
+                <rect
+                  x="10"
+                  y="0"
+                  width="80"
+                  height="37.5"
+                  fill={getOverlayColor(heatmapData[0].value)}
+                />
 
-                  {/* Back */}
-                  <rect
-                    x="10"
-                    y="37.5"
-                    width="80"
-                    height="37.5"
-                    fill={getOverlayColor(heatmapData[1].value)}
-                  />
-                </g>
-              )}
-            </>
-          )}
+                {/* Back */}
+                <rect
+                  x="10"
+                  y="37.5"
+                  width="80"
+                  height="37.5"
+                  fill={getOverlayColor(heatmapData[1].value)}
+                />
+              </g>
+            )}
+          </g>
 
           {/* Shots - only show when in ball hits mode */}
-          {mainMode === 'ballHits' &&
-            filteredShots.map((shot, index) => (
+          <g
+            className={`transition-all duration-500 ${
+              displayMode === 'ballHits' && !isTransitioning
+                ? 'opacity-100'
+                : 'opacity-0'
+            }`}
+          >
+            {filteredShots.map((shot, index) => (
               <g
-                key={index}
+                key={`${shot.x}-${shot.y}-${shot.type}-${shot.result}`}
                 style={{
-                  opacity: animatedShots ? 1 : 0,
-                  transform: animatedShots ? 'scale(1)' : 'scale(0)',
-                  transition: `all 0.3s ease-out ${index * 50}ms`,
+                  opacity:
+                    animatedShots &&
+                    displayMode === 'ballHits' &&
+                    !isFilterTransitioning
+                      ? 1
+                      : 0,
+                  transform:
+                    animatedShots &&
+                    displayMode === 'ballHits' &&
+                    !isFilterTransitioning
+                      ? 'scale(1)'
+                      : 'scale(0)',
+                  transition: `all 0.3s ease-out ${
+                    isFilterTransitioning ? 0 : index * 50
+                  }ms`,
                   transformOrigin: `${shot.x}px ${shot.y}px`,
+                  cursor: 'pointer',
                 }}
               >
-                {shot.team === 'yours' ? (
+                {shot.result === 'groundBounce' ? (
                   <circle
                     cx={shot.x}
                     cy={shot.y}
-                    r="2"
-                    fill="#fbbf24"
-                    stroke="white"
-                    strokeWidth="0.5"
-                    className="hover:r-3 cursor-pointer transition-all"
+                    r="1.8"
+                    fill="none"
+                    stroke="#0ea5e9"
+                    strokeWidth="1.5"
                   />
                 ) : (
                   <g>
-                    <line
-                      x1={shot.x - 2}
-                      y1={shot.y - 2}
-                      x2={shot.x + 2}
-                      y2={shot.y + 2}
-                      stroke="#ef4444"
+                    <path
+                      d={`M ${shot.x - 1.5} ${shot.y - 1.5} L ${shot.x + 1.5} ${
+                        shot.y + 1.5
+                      } M ${shot.x - 1.5} ${shot.y + 1.5} L ${shot.x + 1.5} ${
+                        shot.y - 1.5
+                      }`}
+                      stroke="#f97316"
                       strokeWidth="1.5"
-                    />
-                    <line
-                      x1={shot.x - 2}
-                      y1={shot.y + 2}
-                      x2={shot.x + 2}
-                      y2={shot.y - 2}
-                      stroke="#ef4444"
-                      strokeWidth="1.5"
+                      strokeLinecap="round"
                     />
                   </g>
                 )}
               </g>
             ))}
+          </g>
 
           {/* Heatmap text labels - moved to the end so they appear on top */}
-          {mainMode === 'playerPosition' && (
-            <>
-              {heatmapView === 'zones' && (
-                <g className="transition-opacity duration-300">
-                  {/* Percentage badges */}
-                  {heatmapData.map((data, index) => {
-                    const row = Math.floor(index / 3);
-                    const col = index % 3;
-                    const x = 23.33 + col * 26.67;
-                    const y = 12.5 + row * 25;
-                    return (
-                      <g key={index}>
-                        <text
-                          x={x + 1}
-                          y={y + 1}
-                          textAnchor="middle"
-                          fontSize="7"
-                          fill="white"
-                          stroke="black"
-                          strokeWidth="0.9"
-                          paintOrder="stroke"
-                          fontWeight="600"
-                        >
-                          {data.value}%
-                        </text>
-                      </g>
-                    );
-                  })}
-                </g>
-              )}
+          <g
+            className={`transition-all duration-500 ${
+              displayMode === 'playerPosition' && !isTransitioning
+                ? 'opacity-100'
+                : 'opacity-0'
+            }`}
+          >
+            {heatmapView === 'zones' && (
+              <g>
+                {/* Percentage badges */}
+                {heatmapData.map((data, index) => {
+                  const row = Math.floor(index / 3);
+                  const col = index % 3;
+                  const x = 23.33 + col * 26.67;
+                  const y = 12.5 + row * 25;
+                  return (
+                    <g key={index}>
+                      <text
+                        x={x + 1}
+                        y={y + 1}
+                        textAnchor="middle"
+                        fontSize="7"
+                        fill="white"
+                        stroke="black"
+                        strokeWidth="0.9"
+                        paintOrder="stroke"
+                        fontWeight="600"
+                      >
+                        {data.value}%
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            )}
 
-              {heatmapView === 'sides' && (
-                <g className="transition-opacity duration-300">
-                  {/* Percentage badges */}
-                  {heatmapData.map((data, index) => {
-                    const x = 23.33 + index * 26.67;
-                    const y = 37.5;
-                    return (
-                      <g key={index}>
-                        <text
-                          x={x + 1}
-                          y={y + 1}
-                          textAnchor="middle"
-                          fontSize="7"
-                          fill="white"
-                          stroke="black"
-                          strokeWidth="0.9"
-                          paintOrder="stroke"
-                          fontWeight="600"
-                        >
-                          {data.value}%
-                        </text>
-                      </g>
-                    );
-                  })}
-                </g>
-              )}
+            {heatmapView === 'sides' && (
+              <g>
+                {/* Percentage badges */}
+                {heatmapData.map((data, index) => {
+                  const x = 23.33 + index * 26.67;
+                  const y = 37.5;
+                  return (
+                    <g key={index}>
+                      <text
+                        x={x + 1}
+                        y={y + 1}
+                        textAnchor="middle"
+                        fontSize="7"
+                        fill="white"
+                        stroke="black"
+                        strokeWidth="0.9"
+                        paintOrder="stroke"
+                        fontWeight="600"
+                      >
+                        {data.value}%
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            )}
 
-              {heatmapView === 'front-back' && (
-                <g className="transition-opacity duration-300">
-                  {/* Percentage badges */}
-                  {heatmapData.map((data, index) => {
-                    const x = 70;
-                    const y = 18.75 + index * 37.5;
-                    return (
-                      <g key={index}>
-                        <text
-                          x={x + 1}
-                          y={y + 2}
-                          textAnchor="middle"
-                          fontSize="7"
-                          fill="white"
-                          stroke="black"
-                          strokeWidth="0.9"
-                          paintOrder="stroke"
-                          fontWeight="600"
-                        >
-                          {data.value}%
-                        </text>
-                      </g>
-                    );
-                  })}
-                </g>
-              )}
-            </>
-          )}
+            {heatmapView === 'front-back' && (
+              <g>
+                {/* Percentage badges */}
+                {heatmapData.map((data, index) => {
+                  const x = 70;
+                  const y = 18.75 + index * 37.5;
+                  return (
+                    <g key={index}>
+                      <text
+                        x={x + 1}
+                        y={y + 2}
+                        textAnchor="middle"
+                        fontSize="7"
+                        fill="white"
+                        stroke="black"
+                        strokeWidth="0.9"
+                        paintOrder="stroke"
+                        fontWeight="600"
+                      >
+                        {data.value}%
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            )}
+          </g>
         </svg>
       </div>
 
       {/* Dynamic legend/info based on mode */}
-      <div className="mt-6 border-t border-slate-200 pt-4">
-        {mainMode === 'ballHits' ? (
-          <div className="flex flex-col items-center space-y-2">
-            <div className="flex justify-center gap-6">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full border border-white bg-yellow-400"></div>
-                <span className="text-xs text-gray-600">Your Team</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="relative h-3 w-3">
-                  <div className="absolute inset-0 rotate-45 transform bg-red-500"></div>
-                  <div className="absolute inset-0 -rotate-45 transform bg-red-500"></div>
+      <div className=" mt-6 border-t border-slate-200 pt-4">
+        <div className="relative" style={{ minHeight: '60px' }}>
+          {/* Ball Hits Legend */}
+          <div
+            className={`absolute inset-0 transition-all duration-300 ${
+              displayMode === 'ballHits' && !isTransitioning
+                ? 'scale-100 opacity-100'
+                : 'pointer-events-none scale-95 opacity-0'
+            }`}
+          >
+            <div className="flex flex-col items-center space-y-2">
+              <div className="flex justify-center gap-6">
+                <div className="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 16 16">
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="5"
+                      fill="none"
+                      stroke="#0ea5e9"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                  <span className="text-xs text-gray-600">Ground Bounce</span>
                 </div>
-                <span className="text-xs text-gray-600">Opponents</span>
+                <div className="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 16 16">
+                    <path
+                      d="M 4 4 L 12 12 M 4 12 L 12 4"
+                      stroke="#f97316"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span className="text-xs text-gray-600">Interception</span>
+                </div>
               </div>
+              <p className="text-xs text-gray-500">
+                {filteredShots.length} shots shown
+                {displayShot !== 'all' && ` (${displayShot} only)`}
+              </p>
             </div>
-            <p className="text-xs text-gray-500">
-              {filteredShots.length} {viewMode === 'hit' ? 'hits' : 'bounces'}{' '}
-              shown
-              {selectedShot !== 'all' && ` (${selectedShot} only)`}
-            </p>
           </div>
-        ) : (
-          <div className="space-y-1 text-center">
-            <p className="text-sm font-medium text-gray-700">
-              Player {selectedPlayer} Court Coverage
-            </p>
-            <p className="text-xs text-gray-500">
-              {heatmapView === 'zones'
-                ? '9-zone'
-                : heatmapView === 'sides'
-                  ? '3-column'
-                  : '2-row'}{' '}
-              heatmap analysis
-            </p>
+
+          {/* Player Position Info */}
+          <div
+            className={`absolute inset-0 transition-all duration-300 ${
+              displayMode === 'playerPosition' && !isTransitioning
+                ? 'scale-100 opacity-100'
+                : 'pointer-events-none scale-95 opacity-0'
+            }`}
+          >
+            <div className="space-y-1 text-center">
+              <p className="text-sm font-medium text-gray-700">
+                Player {selectedPlayer} Court Coverage
+              </p>
+              <p className="text-xs text-gray-500">
+                {heatmapView === 'zones'
+                  ? '9-zone'
+                  : heatmapView === 'sides'
+                    ? '3-column'
+                    : '2-row'}{' '}
+                heatmap analysis
+              </p>
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
