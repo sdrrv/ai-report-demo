@@ -656,21 +656,21 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
                   <circle
                     cx={shot.x}
                     cy={shot.y}
-                    r="1.8"
+                    r="1.5"
                     fill="none"
                     stroke="#0ea5e9"
-                    strokeWidth="1.5"
+                    strokeWidth="1"
                   />
                 ) : (
                   <g>
                     <path
-                      d={`M ${shot.x - 1.5} ${shot.y - 1.5} L ${shot.x + 1.5} ${
-                        shot.y + 1.5
-                      } M ${shot.x - 1.5} ${shot.y + 1.5} L ${shot.x + 1.5} ${
-                        shot.y - 1.5
+                      d={`M ${shot.x - 1} ${shot.y - 1} L ${shot.x + 1} ${
+                        shot.y + 1
+                      } M ${shot.x - 1} ${shot.y + 1} L ${shot.x + 1} ${
+                        shot.y - 1
                       }`}
                       stroke="#f97316"
-                      strokeWidth="1.5"
+                      strokeWidth="1"
                       strokeLinecap="round"
                     />
                   </g>
