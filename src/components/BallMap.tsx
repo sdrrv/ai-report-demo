@@ -79,18 +79,117 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
     }, 200);
   };
 
-  // Sample shot data - adjusted for half court (y coordinates now relative to half court)
+  // Sample shot data
   const shots: Shot[] = [
-    { x: 75, y: 20, type: 'forehand', result: 'groundBounce' },
-    { x: 80, y: 35, type: 'backhand', result: 'interception' },
-    { x: 70, y: 50, type: 'forehand', result: 'groundBounce' },
+    { x: 75, y: 25, type: 'forehand', result: 'interception' },
     { x: 25, y: 15, type: 'forehand', result: 'interception' },
-    { x: 20, y: 45, type: 'backhand', result: 'groundBounce' },
+    { x: 55, y: 20, type: 'forehand', result: 'interception' },
+    { x: 65, y: 22, type: 'forehand', result: 'interception' },
+    { x: 85, y: 21, type: 'forehand', result: 'interception' },
+    { x: 55, y: 20, type: 'forehand', result: 'interception' },
+    { x: 35, y: 19, type: 'forehand', result: 'interception' },
+    { x: 80, y: 30, type: 'forehand', result: 'interception' },
+    { x: 47, y: 16, type: 'forehand', result: 'interception' },
+
+    { x: 75, y: 20, type: 'forehand', result: 'groundBounce' },
+    { x: 70, y: 50, type: 'forehand', result: 'groundBounce' },
+    { x: 15, y: 65, type: 'forehand', result: 'groundBounce' },
+    { x: 30, y: 67, type: 'forehand', result: 'groundBounce' },
+    { x: 45, y: 66, type: 'forehand', result: 'groundBounce' },
+    { x: 60, y: 66, type: 'forehand', result: 'groundBounce' },
+    { x: 75, y: 66, type: 'forehand', result: 'groundBounce' },
+    { x: 20, y: 50, type: 'forehand', result: 'groundBounce' },
+    { x: 40, y: 48, type: 'forehand', result: 'groundBounce' },
+    { x: 60, y: 48, type: 'forehand', result: 'groundBounce' },
+    { x: 75, y: 49, type: 'forehand', result: 'groundBounce' },
+    { x: 85, y: 50, type: 'forehand', result: 'groundBounce' },
+    { x: 33, y: 60, type: 'forehand', result: 'groundBounce' },
+    { x: 25, y: 22, type: 'forehand', result: 'groundBounce' },
+    { x: 89, y: 45, type: 'forehand', result: 'groundBounce' },
+    { x: 54, y: 12, type: 'forehand', result: 'groundBounce' },
+    { x: 73, y: 28, type: 'forehand', result: 'groundBounce' },
+    { x: 18, y: 65, type: 'forehand', result: 'groundBounce' },
+
+    { x: 74, y: 26, type: 'backhand', result: 'interception' },
+    { x: 27, y: 14, type: 'backhand', result: 'interception' },
+    { x: 78, y: 29, type: 'backhand', result: 'interception' },
+    { x: 46, y: 17, type: 'backhand', result: 'interception' },
+
+    { x: 74, y: 19, type: 'backhand', result: 'groundBounce' },
+    { x: 72, y: 51, type: 'backhand', result: 'groundBounce' },
+    { x: 14, y: 64, type: 'backhand', result: 'groundBounce' },
+    { x: 29, y: 66, type: 'backhand', result: 'groundBounce' },
+    { x: 47, y: 68, type: 'backhand', result: 'groundBounce' },
+    { x: 58, y: 65, type: 'backhand', result: 'groundBounce' },
+    { x: 74, y: 68, type: 'backhand', result: 'groundBounce' },
+    { x: 19, y: 52, type: 'backhand', result: 'groundBounce' },
+    { x: 42, y: 46, type: 'backhand', result: 'groundBounce' },
+    { x: 17, y: 64, type: 'backhand', result: 'groundBounce' },
+
+    { x: 58, y: 29, type: 'forehandVolley', result: 'interception' },
+    { x: 26, y: 17, type: 'forehandVolley', result: 'interception' },
+
+    { x: 22, y: 68, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 40, y: 66, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 58, y: 64, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 75, y: 65, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 32, y: 54, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 49, y: 60, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 67, y: 58, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 28, y: 48, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 82, y: 52, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 60, y: 50, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 38, y: 36, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 52, y: 34, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 45, y: 33, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 61, y: 35, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 21, y: 0, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 31, y: 0, type: 'forehandVolley', result: 'groundBounce' },
+    { x: 81, y: 0, type: 'forehandVolley', result: 'groundBounce' },
+
+    { x: 57, y: 30, type: 'backhandVolley', result: 'interception' },
+    { x: 27, y: 16, type: 'backhandVolley', result: 'interception' },
+
+    { x: 23, y: 69, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 39, y: 67, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 59, y: 62, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 76, y: 66, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 33, y: 55, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 48, y: 59, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 66, y: 57, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 29, y: 47, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 83, y: 51, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 62, y: 49, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 37, y: 35, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 54, y: 33, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 44, y: 32, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 59, y: 34, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 20, y: 0, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 30, y: 0, type: 'backhandVolley', result: 'groundBounce' },
+    { x: 82, y: 0, type: 'backhandVolley', result: 'groundBounce' },
+
+    { x: 18, y: 43, type: 'serve', result: 'groundBounce' },
+    { x: 28, y: 51, type: 'serve', result: 'groundBounce' },
+    { x: 38, y: 30, type: 'serve', result: 'groundBounce' },
+    { x: 48, y: 42, type: 'serve', result: 'groundBounce' },
+    { x: 58, y: 44, type: 'serve', result: 'groundBounce' },
+    { x: 68, y: 40, type: 'serve', result: 'groundBounce' },
+    { x: 78, y: 51, type: 'serve', result: 'groundBounce' },
+    { x: 88, y: 32, type: 'serve', result: 'groundBounce' },
+    { x: 33, y: 48, type: 'serve', result: 'groundBounce' },
+    { x: 63, y: 69, type: 'serve', result: 'groundBounce' },
+    { x: 45, y: 47, type: 'serve', result: 'groundBounce' },
+    { x: 75, y: 48, type: 'serve', result: 'groundBounce' },
+    { x: 21, y: 40, type: 'serve', result: 'groundBounce' },
+    { x: 85, y: 39, type: 'serve', result: 'groundBounce' },
     { x: 30, y: 70, type: 'serve', result: 'groundBounce' },
-    { x: 85, y: 25, type: 'overhead', result: 'interception' },
-    { x: 90, y: 40, type: 'forehandVolley', result: 'interception' },
-    { x: 45, y: 30, type: 'backhand', result: 'groundBounce' },
-    { x: 55, y: 60, type: 'forehand', result: 'interception' },
+
+    { x: 20, y: 45, type: 'overhead', result: 'groundBounce' },
+    { x: 30, y: 53, type: 'overhead', result: 'groundBounce' },
+    { x: 77, y: 46, type: 'overhead', result: 'groundBounce' },
+    { x: 23, y: 41, type: 'overhead', result: 'groundBounce' },
+    { x: 84, y: 37, type: 'overhead', result: 'groundBounce' },
+    { x: 32, y: 68, type: 'overhead', result: 'groundBounce' },
   ];
 
   const shotTypes = [
@@ -699,12 +798,12 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
                     <g key={index}>
                       <text
                         x={x + 1}
-                        y={y + 1}
+                        y={y + 2}
                         textAnchor="middle"
-                        fontSize="7"
+                        fontSize="5"
                         fill="white"
                         stroke="black"
-                        strokeWidth="0.9"
+                        strokeWidth="0.3"
                         paintOrder="stroke"
                         fontWeight="600"
                       >
@@ -728,10 +827,10 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
                         x={x + 1}
                         y={y + 1}
                         textAnchor="middle"
-                        fontSize="7"
+                        fontSize="5"
                         fill="white"
                         stroke="black"
-                        strokeWidth="0.9"
+                        strokeWidth="0.3"
                         paintOrder="stroke"
                         fontWeight="600"
                       >
@@ -755,10 +854,10 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
                         x={x + 1}
                         y={y + 2}
                         textAnchor="middle"
-                        fontSize="7"
+                        fontSize="5"
                         fill="white"
                         stroke="black"
-                        strokeWidth="0.9"
+                        strokeWidth="0.3"
                         paintOrder="stroke"
                         fontWeight="600"
                       >
@@ -794,7 +893,7 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
                       r="5"
                       fill="none"
                       stroke="#0ea5e9"
-                      strokeWidth="2"
+                      strokeWidth="3"
                     />
                   </svg>
                   <span className="text-xs text-gray-600">Ground Bounce</span>
