@@ -108,7 +108,7 @@ const GameReport: React.FC = () => {
         <SpeedCard delay={1800} />
         <DistanceCard />
         <PointsErrorsCard selectedPlayer={selectedPlayer} delay={600} />
-        <BallMap selectedPlayer={selectedPlayer} />
+        <BallMap />
       </div>
     </div>
   );
