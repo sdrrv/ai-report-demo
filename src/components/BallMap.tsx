@@ -29,16 +29,16 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
   const [viewMode, setViewMode] = useState<'hit' | 'bounce'>('hit');
   const [heatmapView, setHeatmapView] = useState<HeatmapView>('zones');
 
-  // Sample shot data - adjusted y coordinates for the stretched court
+  // Sample shot data - adjusted for half court (y coordinates now relative to half court)
   const shots: Shot[] = [
-    { x: 75, y: 35, type: 'forehand', result: 'hit', team: 'yours' },
-    { x: 80, y: 55, type: 'backhand', result: 'hit', team: 'yours' },
-    { x: 70, y: 75, type: 'forehand', result: 'hit', team: 'yours' },
-    { x: 25, y: 42, type: 'forehand', result: 'hit', team: 'opponent' },
-    { x: 20, y: 70, type: 'backhand', result: 'hit', team: 'opponent' },
-    { x: 30, y: 95, type: 'serve', result: 'hit', team: 'opponent' },
-    { x: 85, y: 50, type: 'overhead', result: 'hit', team: 'yours' },
-    { x: 90, y: 68, type: 'forehandVolley', result: 'bounce', team: 'yours' },
+    { x: 75, y: 20, type: 'forehand', result: 'hit', team: 'yours' },
+    { x: 80, y: 35, type: 'backhand', result: 'hit', team: 'yours' },
+    { x: 70, y: 50, type: 'forehand', result: 'hit', team: 'yours' },
+    { x: 25, y: 15, type: 'forehand', result: 'hit', team: 'opponent' },
+    { x: 20, y: 45, type: 'backhand', result: 'hit', team: 'opponent' },
+    { x: 30, y: 70, type: 'serve', result: 'hit', team: 'opponent' },
+    { x: 85, y: 25, type: 'overhead', result: 'hit', team: 'yours' },
+    { x: 90, y: 40, type: 'forehandVolley', result: 'bounce', team: 'yours' },
   ];
 
   const shotTypes = [
@@ -409,150 +409,126 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
         </div>
       )}
 
-      {/* Padel Court - Vertically Stretched */}
-      <div className="relative overflow-hidden rounded-lg bg-blue-600 p-2">
+      {/* Half Padel Court */}
+      <div className="relative overflow-hidden rounded-lg bg-slate-600 p-2 pt-8">
         <svg
-          viewBox="0 0 100 170"
+          viewBox="0 0 100 85"
           className="h-auto w-full"
-          style={{ maxHeight: '400px' }}
+          style={{ maxHeight: '300px' }}
         >
           {/* Court background */}
-          <rect x="0" y="0" width="100" height="170" fill="#2563eb" />
+          <rect x="0" y="0" width="100" height="85" fill="#45556C" />
 
           {/* Center service line */}
           <line
             x1="50"
-            y1="42"
+            y1="0"
             x2="50"
-            y2="128"
+            y2="55"
             stroke="white"
             strokeWidth="0.5"
           />
 
-          {/* Service lines */}
+          {/* Service line */}
           <line
             x1="10"
-            y1="42"
+            y1="55"
             x2="90"
-            y2="42"
-            stroke="white"
-            strokeWidth="0.5"
-          />
-          <line
-            x1="10"
-            y1="128"
-            x2="90"
-            y2="128"
+            y2="55"
             stroke="white"
             strokeWidth="0.5"
           />
 
-          {/* Court outline */}
-          <rect
-            x="10"
-            y="20"
-            width="80"
-            height="130"
+          {/* Court outline (half court) - open at top */}
+          <path
+            d="M 10 0 L 10 75 L 90 75 L 90 0"
             fill="none"
             stroke="white"
             strokeWidth="1"
           />
 
-          {/* Net */}
+          {/* Net at the top */}
           <line
-            x1="10"
-            y1="85"
-            x2="90"
-            y2="85"
+            x1="11"
+            y1="0"
+            x2="89"
+            y2="0"
             stroke="white"
             strokeWidth="1.5"
             strokeDasharray="2,2"
           />
 
-          {/* Wall indicators */}
-          <rect
-            x="5"
-            y="15"
-            width="90"
-            height="140"
-            fill="none"
-            stroke="white"
-            strokeWidth="0.5"
-            strokeDasharray="1,1"
-            opacity="0.5"
-          />
-
-          {/* Heatmap overlays (rectangles only) - only on bottom half */}
+          {/* Heatmap overlays (rectangles only) */}
           {mainMode === 'playerPosition' && (
             <>
               {heatmapView === 'zones' && (
                 <g className="animate-fade-in">
-                  {/* Net zones (first row below net) */}
+                  {/* Net zones (first row) */}
                   <rect
                     x="10"
-                    y="85"
+                    y="0"
                     width="26.67"
-                    height="21.67"
+                    height="25"
                     fill={getOverlayColor(heatmapData[0].value)}
                   />
                   <rect
                     x="36.67"
-                    y="85"
+                    y="0"
                     width="26.67"
-                    height="21.67"
+                    height="25"
                     fill={getOverlayColor(heatmapData[1].value)}
                   />
                   <rect
                     x="63.33"
-                    y="85"
+                    y="0"
                     width="26.67"
-                    height="21.67"
+                    height="25"
                     fill={getOverlayColor(heatmapData[2].value)}
                   />
 
                   {/* Transition zones (middle row) */}
                   <rect
                     x="10"
-                    y="106.67"
+                    y="25"
                     width="26.67"
-                    height="21.67"
+                    height="25"
                     fill={getOverlayColor(heatmapData[3].value)}
                   />
                   <rect
                     x="36.67"
-                    y="106.67"
+                    y="25"
                     width="26.67"
-                    height="21.67"
+                    height="25"
                     fill={getOverlayColor(heatmapData[4].value)}
                   />
                   <rect
                     x="63.33"
-                    y="106.67"
+                    y="25"
                     width="26.67"
-                    height="21.67"
+                    height="25"
                     fill={getOverlayColor(heatmapData[5].value)}
                   />
 
                   {/* Back zones (bottom row) */}
                   <rect
                     x="10"
-                    y="128.33"
+                    y="50"
                     width="26.67"
-                    height="21.67"
+                    height="25"
                     fill={getOverlayColor(heatmapData[6].value)}
                   />
                   <rect
                     x="36.67"
-                    y="128.33"
+                    y="50"
                     width="26.67"
-                    height="21.67"
+                    height="25"
                     fill={getOverlayColor(heatmapData[7].value)}
                   />
                   <rect
                     x="63.33"
-                    y="128.33"
+                    y="50"
                     width="26.67"
-                    height="21.67"
+                    height="25"
                     fill={getOverlayColor(heatmapData[8].value)}
                   />
                 </g>
@@ -563,27 +539,27 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                   {/* Left Side */}
                   <rect
                     x="10"
-                    y="85"
+                    y="0"
                     width="26.67"
-                    height="65"
+                    height="75"
                     fill={getOverlayColor(heatmapData[0].value)}
                   />
 
                   {/* Middle Side */}
                   <rect
                     x="36.67"
-                    y="85"
+                    y="0"
                     width="26.67"
-                    height="65"
+                    height="75"
                     fill={getOverlayColor(heatmapData[1].value)}
                   />
 
                   {/* Right Side */}
                   <rect
                     x="63.33"
-                    y="85"
+                    y="0"
                     width="26.67"
-                    height="65"
+                    height="75"
                     fill={getOverlayColor(heatmapData[2].value)}
                   />
                 </g>
@@ -594,18 +570,18 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                   {/* Front (Net area) */}
                   <rect
                     x="10"
-                    y="85"
+                    y="0"
                     width="80"
-                    height="32.5"
+                    height="37.5"
                     fill={getOverlayColor(heatmapData[0].value)}
                   />
 
                   {/* Back */}
                   <rect
                     x="10"
-                    y="117.5"
+                    y="37.5"
                     width="80"
-                    height="32.5"
+                    height="37.5"
                     fill={getOverlayColor(heatmapData[1].value)}
                   />
                 </g>
@@ -664,7 +640,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                     const row = Math.floor(index / 3);
                     const col = index % 3;
                     const x = 23.33 + col * 26.67;
-                    const y = 95.83 + row * 21.67;
+                    const y = 12.5 + row * 25;
                     return (
                       <g key={index}>
                         <text
@@ -691,7 +667,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                   {/* Percentage badges */}
                   {heatmapData.map((data, index) => {
                     const x = 23.33 + index * 26.67;
-                    const y = 117.5;
+                    const y = 37.5;
                     return (
                       <g key={index}>
                         <text
@@ -718,7 +694,7 @@ const BallMap: React.FC<BallMapProps> = ({ selectedPlayer }) => {
                   {/* Percentage badges */}
                   {heatmapData.map((data, index) => {
                     const x = 70;
-                    const y = 101.25 + index * 32.5;
+                    const y = 18.75 + index * 37.5;
                     return (
                       <g key={index}>
                         <text

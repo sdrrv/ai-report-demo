@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Target, AlertCircle, User } from 'lucide-react';
+import { Target, User } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface PlayerStats {
@@ -23,6 +23,7 @@ const PointsErrorsCard: React.FC<PointsErrorsCardProps> = ({
   const [animatedPoints, setAnimatedPoints] = useState<number[]>([]);
   const [animatedErrors, setAnimatedErrors] = useState<number[]>([]);
   const [showStats, setShowStats] = useState(false);
+  console.log(selectedPlayer);
 
   // Sample data - replace with actual data based on selectedPlayer
   // Assuming selectedPlayer 1 is paired with Player 2 as teammate
