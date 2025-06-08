@@ -6,7 +6,6 @@ import ShotAnalysis from './ShotAnalysis';
 import DistanceCard from './PlayerDistance';
 import MatchSummary from './MatchSummary';
 import PointsErrorsCard from './PlayerStats';
-import logo from '@/assets/images/iconBorder.png';
 
 interface GameData {
   offensive: number;
@@ -73,7 +72,7 @@ const GameReport: React.FC = () => {
       <div className="mx-auto max-w-md">
         {/* Header with Logo and Title */}
 
-        <div className="relative mb-8 pt-4">
+        {/*<div className="relative mb-8 pt-4">
           {/*<div className="flex items-center justify-center space-x-3 px-4 sm:space-x-5">
             <div className="relative flex-shrink-0">
               <img
@@ -90,12 +89,11 @@ const GameReport: React.FC = () => {
                 Performance Analytics
               </p>
             </div>
-          </div>*/}
+          </div>
 
-          {/* Decorative elements */}
           <div className="absolute -right-2 -top-2 h-20 w-20 animate-pulse rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/20 blur-xl"></div>
           <div className="absolute -bottom-2 -left-2 h-16 w-16 animate-pulse rounded-full bg-gradient-to-br from-green-400/20 to-blue-400/20 blur-xl delay-1000"></div>
-        </div>
+        </div>*/}
 
         <MatchSummary gameData={gameData} />
         <ShotAnalysis

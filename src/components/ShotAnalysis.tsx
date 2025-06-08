@@ -2,11 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { Swords, Shield, Info, BarChart3 } from 'lucide-react';
 import DualCircleChart from './DualCircleChart';
 import CircleChart from './CircleChart';
+import PlayerSelector from './PlayerSelector';
 import { cn } from '@/utils/cn';
 
 interface ShotData {
   name: string;
   percentage: number;
+}
+
+interface Player {
+  id: number;
+  position: string;
+}
+
+interface PlayerShotData {
+  offensive: number;
+  defensive: number;
+  rightShots: number;
+  centerShots: number;
+  leftShots: number;
+  attackHits: ShotData[];
+  defensiveHits: ShotData[];
 }
 
 interface ShotAnalysisProps {
@@ -20,12 +36,14 @@ interface ShotAnalysisProps {
 
 const ShotAnalysis: React.FC<ShotAnalysisProps> = ({
   delay = 0,
+  // These props are now just defaults for player 1
   defensive,
   offensive,
   rightShots = 35,
   centerShots = 40,
   leftShots = 25,
 }) => {
+  const [selectedPlayer, setSelectedPlayer] = useState(1);
   const [animatedAttackWidths, setAnimatedAttackWidths] = useState<number[]>(
     [],
   );
@@ -33,17 +51,84 @@ const ShotAnalysis: React.FC<ShotAnalysisProps> = ({
     number[]
   >([]);
 
-  // Sample data - replace with actual data based on selectedPlayer
-  const attackHits: ShotData[] = [
-    { name: 'Forehand', percentage: 64 },
-    { name: 'Backhand', percentage: 14 },
-    { name: 'Smash', percentage: 12 },
+  const players: Player[] = [
+    { id: 1, position: 'Back Left' },
+    { id: 2, position: 'Back Right' },
+    { id: 3, position: 'Front Left' },
+    { id: 4, position: 'Front Right' },
   ];
 
-  const defensiveHits: ShotData[] = [
-    { name: 'Backhand', percentage: 34 },
-    { name: 'Forehand', percentage: 66 },
-  ];
+  // Sample data for different players - replace with actual data
+  const playerData: Record<number, PlayerShotData> = {
+    1: {
+      offensive,
+      defensive,
+      rightShots,
+      centerShots,
+      leftShots,
+      attackHits: [
+        { name: 'Forehand', percentage: 64 },
+        { name: 'Backhand', percentage: 14 },
+        { name: 'Smash', percentage: 12 },
+      ],
+      defensiveHits: [
+        { name: 'Backhand', percentage: 34 },
+        { name: 'Forehand', percentage: 66 },
+      ],
+    },
+    2: {
+      offensive: 55,
+      defensive: 45,
+      rightShots: 30,
+      centerShots: 45,
+      leftShots: 25,
+      attackHits: [
+        { name: 'Forehand', percentage: 58 },
+        { name: 'Backhand', percentage: 22 },
+        { name: 'Smash', percentage: 20 },
+      ],
+      defensiveHits: [
+        { name: 'Backhand', percentage: 40 },
+        { name: 'Forehand', percentage: 60 },
+      ],
+    },
+    3: {
+      offensive: 75,
+      defensive: 25,
+      rightShots: 40,
+      centerShots: 35,
+      leftShots: 25,
+      attackHits: [
+        { name: 'Forehand', percentage: 70 },
+        { name: 'Backhand', percentage: 10 },
+        { name: 'Smash', percentage: 20 },
+      ],
+      defensiveHits: [
+        { name: 'Backhand', percentage: 45 },
+        { name: 'Forehand', percentage: 55 },
+      ],
+    },
+    4: {
+      offensive: 60,
+      defensive: 40,
+      rightShots: 25,
+      centerShots: 50,
+      leftShots: 25,
+      attackHits: [
+        { name: 'Forehand', percentage: 60 },
+        { name: 'Backhand', percentage: 25 },
+        { name: 'Smash', percentage: 15 },
+      ],
+      defensiveHits: [
+        { name: 'Backhand', percentage: 50 },
+        { name: 'Forehand', percentage: 50 },
+      ],
+    },
+  };
+
+  const currentPlayerData = playerData[selectedPlayer];
+  const attackHits = currentPlayerData.attackHits;
+  const defensiveHits = currentPlayerData.defensiveHits;
 
   const maxAttackPercentage = Math.max(
     ...attackHits.map((shot) => shot.percentage),
@@ -74,7 +159,15 @@ const ShotAnalysis: React.FC<ShotAnalysisProps> = ({
     maxAttackPercentage,
     maxDefensivePercentage,
     delay,
+    selectedPlayer, // Re-animate when player changes
   ]);
+
+  const handlePlayerSelect = (playerId: number) => {
+    setSelectedPlayer(playerId);
+    // Reset animations
+    setAnimatedAttackWidths([]);
+    setAnimatedDefensiveWidths([]);
+  };
 
   const ShotCategory = ({
     title,
@@ -156,14 +249,22 @@ const ShotAnalysis: React.FC<ShotAnalysisProps> = ({
         </div>
       </div>
 
+      {/* Player Selector */}
+      <PlayerSelector
+        players={players}
+        selectedPlayer={selectedPlayer}
+        onPlayerSelect={handlePlayerSelect}
+      />
+
       {/* Attack vs Defense Chart */}
       <div className="my-8 flex justify-center">
         <DualCircleChart
-          offensive={offensive}
-          defensive={defensive}
+          offensive={currentPlayerData.offensive}
+          defensive={currentPlayerData.defensive}
           delay={delay + 200}
         />
       </div>
+
       {/* Detailed Shot Breakdown */}
       <ShotCategory
         title="Attack hits"
@@ -194,7 +295,7 @@ const ShotAnalysis: React.FC<ShotAnalysisProps> = ({
         </div>
         <div className="flex items-center justify-around">
           <CircleChart
-            percentage={leftShots}
+            percentage={currentPlayerData.leftShots}
             label="Left"
             color="#64748b"
             size={85}
@@ -202,7 +303,7 @@ const ShotAnalysis: React.FC<ShotAnalysisProps> = ({
             delay={delay + 400}
           />
           <CircleChart
-            percentage={centerShots}
+            percentage={currentPlayerData.centerShots}
             label="Center"
             color="#475569"
             size={95}
@@ -210,7 +311,7 @@ const ShotAnalysis: React.FC<ShotAnalysisProps> = ({
             delay={delay + 500}
           />
           <CircleChart
-            percentage={rightShots}
+            percentage={currentPlayerData.rightShots}
             label="Right"
             color="#334155"
             size={85}

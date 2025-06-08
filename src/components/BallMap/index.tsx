@@ -4,7 +4,7 @@ import { BallMapProps, MainMode, HeatmapView } from './types';
 import { shotTypes, players, sampleShots, ANIMATION_DELAYS } from './constants';
 import { getHeatmapData, addFadeInStyles } from './utils';
 import Header from './components/Header';
-import PlayerSelector from './components/PlayerSelector';
+import PlayerSelector from '../PlayerSelector';
 import BallHitsControls from './components/BallHitsControls';
 import PlayerPositionControls from './components/PlayerPositionControls';
 import Court from './components/Court';
@@ -90,7 +90,11 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
     >
       <Header mainMode={mainMode} onModeChange={handleModeChange} />
 
-      <PlayerSelector players={players} selectedPlayer={selectedPlayer} />
+      <PlayerSelector
+        players={players}
+        selectedPlayer={selectedPlayer}
+        onPlayerSelect={() => null}
+      />
 
       {/* Controls container with fixed height to prevent jumping */}
       <div className="relative z-20 mb-5" style={{ minHeight: '140px' }}>
