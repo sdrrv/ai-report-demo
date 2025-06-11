@@ -37,50 +37,60 @@ const MatchSummary: React.FC<MatchSummaryProps> = ({
           </div>
         </div>
 
-        {/* Responsive grid: 1 column on mobile, 3 columns on md+ screens */}
+        {/* Responsive grid with consistent alignment */}
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className="rounded-lg border border-slate-200/50 bg-white/50 p-3 sm:p-4">
-            <div className="mb-2 flex items-center gap-1.5">
-              <div className="rounded bg-slate-500 p-1">
-                <Clock className="h-3.5 w-3.5 text-white" />
+          <div className="flex items-center justify-center rounded-lg border border-slate-200/50 bg-white/50 p-3 sm:p-4">
+            <div>
+              <div className="mb-2 flex items-center gap-1.5">
+                <div className="rounded bg-slate-500 p-1">
+                  <Clock className="h-3.5 w-3.5 text-white" />
+                </div>
+                <p className="whitespace-nowrap text-xs font-medium text-slate-600">
+                  Time in Play
+                </p>
               </div>
-              <p className="text-xs font-medium text-slate-600">Time in Play</p>
-            </div>
-            <p className="text-xl font-bold text-slate-800 sm:text-2xl">
-              {gameData.timeInPlay} min
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-slate-200/50 bg-white/50 p-3 sm:p-4">
-            <div className="mb-2 flex items-center gap-1.5">
-              <div className="rounded bg-slate-500 p-1">
-                <Activity className="h-3.5 w-3.5 text-white" />
-              </div>
-              <p className="text-xs font-medium text-slate-600">Avg Rally</p>
-            </div>
-            <p className="text-xl font-bold text-slate-800 sm:text-2xl">
-              {gameData.averageRally}
-              <span className="ml-1 text-sm font-normal text-slate-600 sm:text-base">
-                shots
-              </span>
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-slate-200/50 bg-white/50 p-3 sm:p-4">
-            <div className="mb-2 flex items-center gap-1.5">
-              <div className="rounded bg-slate-500 p-1">
-                <Zap className="h-3.5 w-3.5 text-white" />
-              </div>
-              <p className="text-xs font-medium text-slate-600">
-                Longest Rally
+              <p className="text-xl font-bold text-slate-800 sm:text-2xl">
+                {gameData.timeInPlay} min
               </p>
             </div>
-            <p className="text-xl font-bold text-slate-800 sm:text-2xl">
-              {gameData.longestRally}
-              <span className="ml-1 text-sm font-normal text-slate-600 sm:text-base">
-                shots
-              </span>
-            </p>
+          </div>
+
+          <div className="flex items-center justify-center rounded-lg border border-slate-200/50 bg-white/50 p-3 sm:p-4">
+            <div>
+              <div className="mb-2 flex items-center gap-1.5">
+                <div className="rounded bg-slate-500 p-1">
+                  <Activity className="h-3.5 w-3.5 text-white" />
+                </div>
+                <p className="whitespace-nowrap text-xs font-medium text-slate-600">
+                  Avg Rally
+                </p>
+              </div>
+              <p className="text-xl font-bold text-slate-800 sm:text-2xl">
+                {gameData.averageRally}
+                <span className="ml-1 text-sm font-normal text-slate-600 sm:text-base">
+                  shots
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center rounded-lg border border-slate-200/50 bg-white/50 p-3 sm:p-4">
+            <div>
+              <div className="mb-2 flex items-center gap-1.5">
+                <div className="rounded bg-slate-500 p-1">
+                  <Zap className="h-3.5 w-3.5 text-white" />
+                </div>
+                <p className="whitespace-nowrap text-xs font-medium text-slate-600">
+                  Longest Rally
+                </p>
+              </div>
+              <p className="text-xl font-bold text-slate-800 sm:text-2xl">
+                {gameData.longestRally}
+                <span className="ml-1 text-sm font-normal text-slate-600 sm:text-base">
+                  shots
+                </span>
+              </p>
+            </div>
           </div>
         </div>
       </div>

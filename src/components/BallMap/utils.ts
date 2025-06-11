@@ -80,6 +80,17 @@ export const generateHeatmapPoints = (): HeatmapPoint[] => {
     y: 28,
     value: 55,
   });
+  // Added low value points around net
+  points.push({
+    x: 27,
+    y: 26,
+    value: 8,
+  });
+  points.push({
+    x: 33,
+    y: 24,
+    value: 5,
+  });
 
   points.push({
     x: 20,
@@ -133,6 +144,22 @@ export const generateHeatmapPoints = (): HeatmapPoint[] => {
     y: 60,
     value: 55,
   });
+  // Added low value points in left defense
+  points.push({
+    x: 27,
+    y: 59,
+    value: 7,
+  });
+  points.push({
+    x: 31,
+    y: 62,
+    value: 6,
+  });
+  points.push({
+    x: 24,
+    y: 64,
+    value: 8,
+  });
 
   points.push({
     x: 25,
@@ -185,6 +212,32 @@ export const generateHeatmapPoints = (): HeatmapPoint[] => {
     x: 80,
     y: 60,
     value: 15,
+  });
+  // Added low value points in right defense
+  points.push({
+    x: 68,
+    y: 59,
+    value: 5,
+  });
+  points.push({
+    x: 73,
+    y: 62,
+    value: 7,
+  });
+  points.push({
+    x: 66,
+    y: 64,
+    value: 6,
+  });
+  points.push({
+    x: 69,
+    y: 57,
+    value: 8,
+  });
+  points.push({
+    x: 74,
+    y: 63,
+    value: 5,
   });
 
   return points;
