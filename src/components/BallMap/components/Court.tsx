@@ -39,8 +39,8 @@ const Court: React.FC<CourtProps> = ({
         if (heatmapContainerRef.current) {
           const config = {
             container: heatmapContainerRef.current,
-            radius: 40,
-            maxOpacity: 0.85,
+            radius: 30,
+            maxOpacity: 0.95,
             minOpacity: 0.1,
             blur: 0.85,
             gradient: {
@@ -65,6 +65,7 @@ const Court: React.FC<CourtProps> = ({
             min: 0,
             data: points.map((point) => ({
               // Transform from court coordinates (10-90, 0-75) to pixel coordinates
+              //Doing the maths hehehehheehhe
               x: Math.round(((point.x - 10) / 80) * containerWidth),
               y: Math.round((point.y / 75) * containerHeight),
               value: point.value,
