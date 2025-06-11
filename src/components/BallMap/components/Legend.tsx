@@ -63,7 +63,7 @@ const Legend: React.FC<LegendProps> = ({
               : 'pointer-events-none scale-95 opacity-0'
           }`}
         >
-          <div className="space-y-1 text-center">
+          <div className="space-y-2 text-center">
             <p className="text-sm font-medium text-gray-700">
               Player {selectedPlayer} Court Coverage
             </p>
@@ -72,9 +72,18 @@ const Legend: React.FC<LegendProps> = ({
                 ? '9-zone'
                 : heatmapView === 'sides'
                   ? '3-column'
-                  : '2-row'}{' '}
+                  : heatmapView === 'front-back'
+                    ? '2-row'
+                    : 'Density'}{' '}
               heatmap analysis
             </p>
+            {heatmapView === 'heatmap' && (
+              <div className="mt-2 flex items-center justify-center gap-1">
+                <span className="text-xs text-gray-500">Low</span>
+                <div className="h-2 w-24 rounded-full bg-gradient-to-r from-blue-300 via-yellow-400 to-red-500" />
+                <span className="text-xs text-gray-500">High</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

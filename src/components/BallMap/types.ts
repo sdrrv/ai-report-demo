@@ -27,7 +27,13 @@ export interface HeatmapData {
   value: number;
 }
 
-export type HeatmapView = 'zones' | 'sides' | 'front-back';
+export interface HeatmapPoint {
+  x: number;
+  y: number;
+  value: number;
+}
+
+export type HeatmapView = 'zones' | 'sides' | 'front-back' | 'heatmap';
 export type MainMode = 'ballHits' | 'playerPosition';
 
 export interface BallMapProps {

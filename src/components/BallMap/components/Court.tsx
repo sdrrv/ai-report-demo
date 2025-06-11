@@ -1,7 +1,8 @@
 // components/Court.tsx
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import h337 from 'heatmap.js';
 import { CourtProps } from '../types';
-import { getOverlayColor } from '../utils';
+import { getOverlayColor, generateHeatmapPoints } from '../utils';
 import { ANIMATION_DELAYS } from '../constants';
 
 const Court: React.FC<CourtProps> = ({
@@ -13,6 +14,75 @@ const Court: React.FC<CourtProps> = ({
   heatmapView,
   heatmapData,
 }) => {
+  const heatmapContainerRef = useRef<HTMLDivElement>(null);
+  const heatmapInstanceRef = useRef<any>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (
+      heatmapView === 'heatmap' &&
+      displayMode === 'playerPosition' &&
+      heatmapContainerRef.current &&
+      svgRef.current
+    ) {
+      // Clean up previous instance
+      if (heatmapInstanceRef.current) {
+        heatmapInstanceRef.current = null;
+        if (heatmapContainerRef.current) {
+          heatmapContainerRef.current.innerHTML = '';
+        }
+      }
+
+      // Wait for container to be properly sized
+      setTimeout(() => {
+        // Create heatmap instance
+        if (heatmapContainerRef.current) {
+          const config = {
+            container: heatmapContainerRef.current,
+            radius: 40,
+            maxOpacity: 0.85,
+            minOpacity: 0.1,
+            blur: 0.85,
+            gradient: {
+              '0.0': '#0000ff',
+              '0.2': '#00ffff',
+              '0.4': '#00ff00',
+              '0.6': '#ffff00',
+              '0.8': '#ff8800',
+              '1.0': '#ff0000',
+            },
+          };
+
+          heatmapInstanceRef.current = h337.create(config);
+
+          // Generate and set data
+          const points = generateHeatmapPoints();
+          const containerWidth = heatmapContainerRef.current!.offsetWidth;
+          const containerHeight = heatmapContainerRef.current!.offsetHeight;
+
+          const data = {
+            max: 100,
+            min: 0,
+            data: points.map((point) => ({
+              // Transform from court coordinates (10-90, 0-75) to pixel coordinates
+              x: Math.round(((point.x - 10) / 80) * containerWidth),
+              y: Math.round((point.y / 75) * containerHeight),
+              value: point.value,
+            })),
+          };
+
+          heatmapInstanceRef.current.setData(data);
+        }
+      }, 100);
+    }
+
+    return () => {
+      if (heatmapInstanceRef.current) {
+        heatmapInstanceRef.current = null;
+      }
+    };
+  }, [heatmapView, displayMode]);
+
   const renderHeatmapOverlays = () => {
     if (heatmapView === 'zones') {
       return (
@@ -240,129 +310,173 @@ const Court: React.FC<CourtProps> = ({
   };
 
   return (
-    <div className="relative z-10 overflow-hidden rounded-lg bg-slate-600 p-2 pt-8">
-      <svg
-        viewBox="0 0 100 85"
-        className="h-auto w-full"
-        style={{ maxHeight: '300px' }}
-      >
-        {/* Court background */}
-        <rect x="0" y="0" width="100" height="85" fill="#45556C" />
-
-        {/* Center service line */}
-        <line x1="50" y1="0" x2="50" y2="55" stroke="white" strokeWidth="0.5" />
-
-        {/* Service line */}
-        <line
-          x1="10"
-          y1="55"
-          x2="90"
-          y2="55"
-          stroke="white"
-          strokeWidth="0.5"
-        />
-
-        {/* Court outline (half court) - open at top */}
-        <path
-          d="M 10 0 L 10 75 L 90 75 L 90 0"
-          fill="none"
-          stroke="white"
-          strokeWidth="1"
-        />
-
-        {/* Net at the top */}
-        <line
-          x1="11"
-          y1="0"
-          x2="89"
-          y2="0"
-          stroke="white"
-          strokeWidth="1.5"
-          strokeDasharray="2,2"
-        />
-
-        {/* Heatmap overlays */}
-        <g
-          className={`transition-all duration-500 ${
-            displayMode === 'playerPosition' && !isTransitioning
+    <div className="relative overflow-hidden rounded-lg bg-slate-600 p-8">
+      {/* SVG Container with aspect ratio */}
+      <div className="relative w-full" style={{ aspectRatio: '100 / 85' }}>
+        {/* Heatmap container */}
+        <div
+          ref={heatmapContainerRef}
+          className={`absolute transition-opacity duration-500 ${
+            heatmapView === 'heatmap' &&
+            displayMode === 'playerPosition' &&
+            !isTransitioning
               ? 'opacity-100'
-              : 'opacity-0'
+              : 'pointer-events-none opacity-0'
           }`}
-        >
-          {renderHeatmapOverlays()}
-        </g>
+          style={{
+            left: '10%',
+            width: '80%',
+            top: '0%',
+            height: '88.235%',
+          }}
+        />
 
-        {/* Shots - only show when in ball hits mode */}
-        <g
-          className={`transition-all duration-500 ${
-            displayMode === 'ballHits' && !isTransitioning
-              ? 'opacity-100'
-              : 'opacity-0'
-          }`}
+        <svg
+          ref={svgRef}
+          viewBox="0 0 100 85"
+          className="absolute inset-0 h-full w-full"
+          preserveAspectRatio="xMidYMid meet"
         >
-          {shots.map((shot, index) => (
-            <g
-              key={`${shot.x}-${shot.y}-${shot.type}-${shot.result}`}
-              style={{
-                opacity:
-                  animatedShots &&
-                  displayMode === 'ballHits' &&
-                  !isFilterTransitioning
-                    ? 1
-                    : 0,
-                transform:
-                  animatedShots &&
-                  displayMode === 'ballHits' &&
-                  !isFilterTransitioning
-                    ? 'scale(1)'
-                    : 'scale(0)',
-                transition: `all 0.3s ease-out ${
-                  isFilterTransitioning
-                    ? 0
-                    : index * ANIMATION_DELAYS.SHOT_STAGGER
-                }ms`,
-                transformOrigin: `${shot.x}px ${shot.y}px`,
-                cursor: 'pointer',
-              }}
-            >
-              {shot.result === 'groundBounce' ? (
-                <circle
-                  cx={shot.x}
-                  cy={shot.y}
-                  r="1.5"
-                  fill="none"
-                  stroke="#0ea5e9"
-                  strokeWidth="1"
-                />
-              ) : (
-                <g>
-                  <path
-                    d={`M ${shot.x - 1} ${shot.y - 1} L ${shot.x + 1} ${
-                      shot.y + 1
-                    } M ${shot.x - 1} ${shot.y + 1} L ${shot.x + 1} ${
-                      shot.y - 1
-                    }`}
-                    stroke="#f97316"
+          {/* Court background */}
+          <rect
+            x="0"
+            y="0"
+            width="100"
+            height="85"
+            fill="#45556C"
+            className={
+              heatmapView === 'heatmap' && displayMode === 'playerPosition'
+                ? 'opacity-0'
+                : 'opacity-100'
+            }
+          />
+
+          {/* Center service line */}
+          <line
+            x1="50"
+            y1="0"
+            x2="50"
+            y2="55"
+            stroke="white"
+            strokeWidth="0.5"
+          />
+
+          {/* Service line */}
+          <line
+            x1="10"
+            y1="55"
+            x2="90"
+            y2="55"
+            stroke="white"
+            strokeWidth="0.5"
+          />
+
+          {/* Court outline (half court) - open at top */}
+          <path
+            d="M 10 0 L 10 75 L 90 75 L 90 0"
+            fill="none"
+            stroke="white"
+            strokeWidth="1"
+          />
+
+          {/* Net at the top */}
+          <line
+            x1="11"
+            y1="0"
+            x2="89"
+            y2="0"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeDasharray="2,2"
+          />
+
+          {/* Heatmap overlays */}
+          <g
+            className={`transition-all duration-500 ${
+              displayMode === 'playerPosition' &&
+              !isTransitioning &&
+              heatmapView !== 'heatmap'
+                ? 'opacity-100'
+                : 'opacity-0'
+            }`}
+          >
+            {renderHeatmapOverlays()}
+          </g>
+
+          {/* Shots - only show when in ball hits mode */}
+          <g
+            className={`transition-all duration-500 ${
+              displayMode === 'ballHits' && !isTransitioning
+                ? 'opacity-100'
+                : 'opacity-0'
+            }`}
+          >
+            {shots.map((shot, index) => (
+              <g
+                key={`${shot.x}-${shot.y}-${shot.type}-${shot.result}`}
+                style={{
+                  opacity:
+                    animatedShots &&
+                    displayMode === 'ballHits' &&
+                    !isFilterTransitioning
+                      ? 1
+                      : 0,
+                  transform:
+                    animatedShots &&
+                    displayMode === 'ballHits' &&
+                    !isFilterTransitioning
+                      ? 'scale(1)'
+                      : 'scale(0)',
+                  transition: `all 0.3s ease-out ${
+                    isFilterTransitioning
+                      ? 0
+                      : index * ANIMATION_DELAYS.SHOT_STAGGER
+                  }ms`,
+                  transformOrigin: `${shot.x}px ${shot.y}px`,
+                  cursor: 'pointer',
+                }}
+              >
+                {shot.result === 'groundBounce' ? (
+                  <circle
+                    cx={shot.x}
+                    cy={shot.y}
+                    r="1.5"
+                    fill="none"
+                    stroke="#0ea5e9"
                     strokeWidth="1"
-                    strokeLinecap="round"
                   />
-                </g>
-              )}
-            </g>
-          ))}
-        </g>
+                ) : (
+                  <g>
+                    <path
+                      d={`M ${shot.x - 1} ${shot.y - 1} L ${shot.x + 1} ${
+                        shot.y + 1
+                      } M ${shot.x - 1} ${shot.y + 1} L ${shot.x + 1} ${
+                        shot.y - 1
+                      }`}
+                      stroke="#f97316"
+                      strokeWidth="1"
+                      strokeLinecap="round"
+                    />
+                  </g>
+                )}
+              </g>
+            ))}
+          </g>
 
-        {/* Heatmap text labels - moved to the end so they appear on top */}
-        <g
-          className={`transition-all duration-500 ${
-            displayMode === 'playerPosition' && !isTransitioning
-              ? 'opacity-100'
-              : 'opacity-0'
-          }`}
-        >
-          {renderHeatmapLabels()}
-        </g>
-      </svg>
+          {/* Heatmap text labels - moved to the end so they appear on top */}
+          <g
+            className={`transition-all duration-500 ${
+              displayMode === 'playerPosition' &&
+              !isTransitioning &&
+              heatmapView !== 'heatmap'
+                ? 'opacity-100'
+                : 'opacity-0'
+            }`}
+          >
+            {renderHeatmapLabels()}
+          </g>
+        </svg>
+      </div>
     </div>
   );
 };

@@ -579,10 +579,29 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.7.tgz#4158d3105276773d5b7695cd4834b1722e4f37a8"
   integrity sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==
 
+"@types/geojson@*":
+  version "7946.0.16"
+  resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.16.tgz#8ebe53d69efada7044454e3305c19017d97ced2a"
+  integrity sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==
+
+"@types/heatmap.js@2.0.41":
+  version "2.0.41"
+  resolved "https://registry.yarnpkg.com/@types/heatmap.js/-/heatmap.js-2.0.41.tgz#0489f07b054e624afc09917435371fb63250f961"
+  integrity sha512-3oHffxC+N+1EKXjeC65klk1kHnLJ5i6tEKFNb/04J+qSfQuCliacsNBWDpt59JfG2vBXRRn+ICbzRZj48j6HfQ==
+  dependencies:
+    "@types/leaflet" "^0"
+
 "@types/json-schema@*", "@types/json-schema@^7.0.12":
   version "7.0.15"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.15.tgz#596a1747233694d50f6ad8a7869fcb6f56cf5841"
   integrity sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==
+
+"@types/leaflet@^0":
+  version "0.7.40"
+  resolved "https://registry.yarnpkg.com/@types/leaflet/-/leaflet-0.7.40.tgz#ed2436ef2772827c8d33c35640df74bb6f0a9b6d"
+  integrity sha512-R2UwXOKwnKZi9zNm37WbPTAVuqHmysE6NVihkc5DUrovTirUxFSbZzvXrlwv0n5sibe0w8VF1bWu0ta4kZlAaA==
+  dependencies:
+    "@types/geojson" "*"
 
 "@types/node@20.12.13":
   version "20.12.13"
@@ -2132,6 +2151,10 @@ hasown@^2.0.2:
   integrity sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==
   dependencies:
     function-bind "^1.1.2"
+
+"heatmap.js@https://github.com/ionata/heatmap.js.git":
+  version "2.0.5"
+  resolved "https://github.com/ionata/heatmap.js.git#1452fc74fb3442f5f74b43394fddd06057fc387b"
 
 hls.js@^1.5.17:
   version "1.6.5"
