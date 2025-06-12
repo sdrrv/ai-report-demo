@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import BallMap from './BallMap';
 import SpeedCard from './SpeedCard';
 import ShotAnalysis from './ShotAnalysis';
+import ServesCard from './ServesCard';
 import DistanceCard from './PlayerDistance';
 import MatchSummary from './MatchSummary';
 import PointsErrorsCard from './PlayerStats';
@@ -104,6 +105,7 @@ const GameReport: React.FC = () => {
           centerShots={gameData.centerShots}
           leftShots={gameData.leftShots}
         />
+        <ServesCard delay={800} />
         <SpeedCard delay={1800} />
         <DistanceCard />
         <PointsErrorsCard selectedPlayer={selectedPlayer} delay={600} />
