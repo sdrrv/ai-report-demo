@@ -69,7 +69,7 @@ import Test from './components/Test';
 
 const App: React.FC = () => {
   return (
-    <Router basename="/ai-report-demo">
+    <Router>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <Routes>
           {/*<Route path="/" element={<Base />} />*/}
