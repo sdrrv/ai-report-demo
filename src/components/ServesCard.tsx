@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, Target, Trophy } from 'lucide-react';
+import { Zap, Trophy } from 'lucide-react';
 import TripleCircleChart from './TripleCricleChart';
 import PlayerSelector from './PlayerSelector';
 import { TennisBall } from '@/assets/icons/TennisBall';
