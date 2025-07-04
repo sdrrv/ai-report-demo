@@ -1,0 +1,14 @@
+# Browsers list configuration for compatibility
+# Chrome 61 was released in September 2017
+# Android 8.0 (Oreo) uses Chrome 61 WebView
+
+Chrome >= 61
+Firefox >= 60
+Safari >= 11
+Edge >= 16
+iOS >= 11
+Android >= 8.0
+
+# For development
+last 2 Chrome versions
+last 2 Firefox versions
