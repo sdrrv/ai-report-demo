@@ -33,10 +33,10 @@ const Court: React.FC<CourtProps> = ({
         }
       }
 
-      // Wait for container to be properly sized
+      // Wait for container to be properly sized (increased for Android WebView)
       setTimeout(() => {
         // Create heatmap instance
-        if (heatmapContainerRef.current) {
+        if (heatmapContainerRef.current && heatmapContainerRef.current.offsetWidth > 0) {
           const config = {
             container: heatmapContainerRef.current,
             radius: 30,
@@ -74,7 +74,7 @@ const Court: React.FC<CourtProps> = ({
 
           heatmapInstanceRef.current.setData(data);
         }
-      }, 100);
+      }, 300);
     }
 
     return () => {
@@ -313,7 +313,7 @@ const Court: React.FC<CourtProps> = ({
   return (
     <div className="relative overflow-hidden rounded-lg bg-slate-600 p-8">
       {/* SVG Container with aspect ratio */}
-      <div className="relative w-full" style={{ aspectRatio: '100 / 85' }}>
+      <div className="relative w-full" style={{ position: 'relative', paddingBottom: '85%' }}>
         {/* Heatmap container */}
         <div
           ref={heatmapContainerRef}
@@ -329,6 +329,9 @@ const Court: React.FC<CourtProps> = ({
             width: '80%',
             top: '0%',
             height: '88.235%',
+            backgroundColor: 'transparent',
+            WebkitTransform: 'translate3d(0,0,0)',
+            transform: 'translate3d(0,0,0)',
           }}
         />
 
@@ -337,6 +340,7 @@ const Court: React.FC<CourtProps> = ({
           viewBox="0 0 100 85"
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="xMidYMid meet"
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
         >
           {/* Court background */}
           <rect
@@ -426,14 +430,27 @@ const Court: React.FC<CourtProps> = ({
                     animatedShots &&
                     displayMode === 'ballHits' &&
                     !isFilterTransitioning
-                      ? 'scale(1)'
-                      : 'scale(0)',
+                      ? 'scale(1) translate3d(0,0,0)'
+                      : 'scale(0) translate3d(0,0,0)',
+                  WebkitTransform:
+                    animatedShots &&
+                    displayMode === 'ballHits' &&
+                    !isFilterTransitioning
+                      ? 'scale(1) translate3d(0,0,0)'
+                      : 'scale(0) translate3d(0,0,0)',
                   transition: `all 0.3s ease-out ${
                     isFilterTransitioning
                       ? 0
                       : index * ANIMATION_DELAYS.SHOT_STAGGER
                   }ms`,
+                  WebkitTransition: `all 0.3s ease-out ${
+                    isFilterTransitioning
+                      ? 0
+                      : index * ANIMATION_DELAYS.SHOT_STAGGER
+                  }ms`,
                   transformOrigin: `${shot.x}px ${shot.y}px`,
+                  WebkitTransformOrigin: `${shot.x}px ${shot.y}px`,
+                  willChange: 'transform, opacity',
                   cursor: 'pointer',
                 }}
               >

@@ -15,23 +15,25 @@
     "@react-three/fiber": "9.1.2",
     "clsx": "2.1.1",
     "framer-motion": "12.12.1",
+    "heatmap.js": "https://github.com/ionata/heatmap.js.git",
     "lucide-react": "0.511.0",
+    "object.hasown": "1.1.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-router-dom": "7.6.2",
     "tailwind-merge": "3.3.0",
-    "three": "0.177.0",
-    "heatmap.js": "https://github.com/ionata/heatmap.js.git"
+    "three": "0.177.0"
   },
   "devDependencies": {
     "@nabla/vite-plugin-eslint": "2.0.4",
-    "@types/heatmap.js": "2.0.41",
     "@types/eslint": "8.56.12",
+    "@types/heatmap.js": "2.0.41",
     "@types/node": "20.12.13",
     "@types/react": "18.3.3",
     "@types/react-dom": "19.1.6",
     "@typescript-eslint/eslint-plugin": "6.13.1",
     "@typescript-eslint/parser": "6.13.1",
+    "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-react-swc": "3.7.0",
     "autoprefixer": "10.4.14",
     "eslint": "8.57.1",
@@ -47,6 +49,7 @@
     "prettier": "3.1.0",
     "prettier-plugin-tailwindcss": "0.4.1",
     "tailwindcss": "3.4.1",
+    "terser": "5.43.1",
     "typescript": "5.2.2",
     "vite": "5.4.15"
   }
