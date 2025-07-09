@@ -252,13 +252,27 @@ export const addFadeInStyles = (): void => {
   const style = document.createElement('style');
   style.id = 'ballmap-fade-in-styles';
   style.textContent = `
-    @keyframes fade-in {
+    @-webkit-keyframes fade-in {
       from {
         opacity: 0;
+        -webkit-transform: translateY(10px);
         transform: translateY(10px);
       }
       to {
         opacity: 1;
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+      }
+    }
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        -webkit-transform: translateY(10px);
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        -webkit-transform: translateY(0);
         transform: translateY(0);
       }
     }

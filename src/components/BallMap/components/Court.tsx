@@ -3,7 +3,6 @@ import React, { useEffect, useRef } from 'react';
 import h337 from 'heatmap.js';
 import { CourtProps } from '../types';
 import { getOverlayColor, generateHeatmapPoints } from '../utils';
-import { ANIMATION_DELAYS } from '../constants';
 
 const Court: React.FC<CourtProps> = ({
   shots,
@@ -17,6 +16,13 @@ const Court: React.FC<CourtProps> = ({
   const heatmapContainerRef = useRef<HTMLDivElement>(null);
   const heatmapInstanceRef = useRef<any>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    console.log('Court component mounted');
+    if (svgRef.current) {
+      console.log('SVG element dimensions:', svgRef.current.getBoundingClientRect());
+    }
+  }, []);
 
   useEffect(() => {
     if (
@@ -44,12 +50,12 @@ const Court: React.FC<CourtProps> = ({
             minOpacity: 0.1,
             blur: 0.85,
             gradient: {
-              '0.0': '#0000ff',
-              '0.2': '#00ffff',
-              '0.4': '#00ff00',
-              '0.6': '#ffff00',
-              '0.8': '#ff8800',
-              '1.0': '#ff0000',
+              '0.0': 'rgb(0, 0, 255)',
+              '0.2': 'rgb(0, 255, 255)',
+              '0.4': 'rgb(0, 255, 0)',
+              '0.6': 'rgb(255, 255, 0)',
+              '0.8': 'rgb(255, 136, 0)',
+              '1.0': 'rgb(255, 0, 0)',
             },
           };
 
@@ -237,8 +243,8 @@ const Court: React.FC<CourtProps> = ({
                 y={y + 2}
                 textAnchor="middle"
                 fontSize="5"
-                fill="white"
-                stroke="black"
+                fill="rgb(255, 255, 255)"
+                stroke="rgb(0, 0, 0)"
                 strokeWidth="0.3"
                 paintOrder="stroke"
                 fontWeight="600"
@@ -265,8 +271,8 @@ const Court: React.FC<CourtProps> = ({
                 y={y + 1}
                 textAnchor="middle"
                 fontSize="5"
-                fill="white"
-                stroke="black"
+                fill="rgb(255, 255, 255)"
+                stroke="rgb(0, 0, 0)"
                 strokeWidth="0.3"
                 paintOrder="stroke"
                 fontWeight="600"
@@ -293,8 +299,8 @@ const Court: React.FC<CourtProps> = ({
                 y={y + 2}
                 textAnchor="middle"
                 fontSize="5"
-                fill="white"
-                stroke="black"
+                fill="rgb(255, 255, 255)"
+                stroke="rgb(0, 0, 0)"
                 strokeWidth="0.3"
                 paintOrder="stroke"
                 fontWeight="600"
@@ -317,7 +323,7 @@ const Court: React.FC<CourtProps> = ({
         {/* Heatmap container */}
         <div
           ref={heatmapContainerRef}
-          className={`absolute transition-opacity duration-500 ${
+          className={`absolute ${
             heatmapView === 'heatmap' &&
             displayMode === 'playerPosition' &&
             !isTransitioning
@@ -329,14 +335,29 @@ const Court: React.FC<CourtProps> = ({
             width: '80%',
             top: '0%',
             height: '88.235%',
+            WebkitTransition: 'opacity 0.5s',
+            transition: 'opacity 0.5s',
+            opacity:
+              heatmapView === 'heatmap' &&
+              displayMode === 'playerPosition' &&
+              !isTransitioning
+                ? 1
+                : 0,
           }}
         />
 
         <svg
           ref={svgRef}
+          xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 100 85"
+          width="100%"
+          height="100%"
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="xMidYMid meet"
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+          }}
         >
           {/* Court background */}
           <rect
@@ -344,7 +365,7 @@ const Court: React.FC<CourtProps> = ({
             y="0"
             width="100"
             height="85"
-            fill="#45556C"
+            fill="rgb(69, 85, 108)"
             className={
               heatmapView === 'heatmap' && displayMode === 'playerPosition'
                 ? 'opacity-0'
@@ -358,8 +379,8 @@ const Court: React.FC<CourtProps> = ({
             y1="0"
             x2="50"
             y2="55"
-            stroke="white"
-            strokeWidth="0.5"
+            stroke="rgb(255, 255, 255)"
+            strokeWidth="1"
           />
 
           {/* Service line */}
@@ -368,16 +389,16 @@ const Court: React.FC<CourtProps> = ({
             y1="55"
             x2="90"
             y2="55"
-            stroke="white"
-            strokeWidth="0.5"
+            stroke="rgb(255, 255, 255)"
+            strokeWidth="1"
           />
 
           {/* Court outline (half court) - open at top */}
           <path
             d="M 10 0 L 10 75 L 90 75 L 90 0"
             fill="none"
-            stroke="white"
-            strokeWidth="1"
+            stroke="rgb(255, 255, 255)"
+            strokeWidth="2"
           />
 
           {/* Net at the top */}
@@ -386,56 +407,42 @@ const Court: React.FC<CourtProps> = ({
             y1="0"
             x2="89"
             y2="0"
-            stroke="white"
-            strokeWidth="1.5"
+            stroke="rgb(255, 255, 255)"
+            strokeWidth="2"
             strokeDasharray="2,2"
           />
 
           {/* Heatmap overlays */}
           <g
-            className={`transition-all duration-500 ${
+            className={
               displayMode === 'playerPosition' &&
               !isTransitioning &&
               heatmapView !== 'heatmap'
                 ? 'opacity-100'
                 : 'opacity-0'
-            }`}
+            }
           >
             {renderHeatmapOverlays()}
           </g>
 
           {/* Shots - only show when in ball hits mode */}
           <g
-            className={`transition-all duration-500 ${
+            className={
               displayMode === 'ballHits' && !isTransitioning
                 ? 'opacity-100'
                 : 'opacity-0'
-            }`}
+            }
           >
-            {shots.map((shot, index) => (
+            {shots.map((shot) => (
               <g
                 key={`${shot.x}-${shot.y}-${shot.type}-${shot.result}`}
-                style={{
-                  opacity:
-                    animatedShots &&
-                    displayMode === 'ballHits' &&
-                    !isFilterTransitioning
-                      ? 1
-                      : 0,
-                  transform:
-                    animatedShots &&
-                    displayMode === 'ballHits' &&
-                    !isFilterTransitioning
-                      ? 'scale(1)'
-                      : 'scale(0)',
-                  transition: `all 0.3s ease-out ${
-                    isFilterTransitioning
-                      ? 0
-                      : index * ANIMATION_DELAYS.SHOT_STAGGER
-                  }ms`,
-                  transformOrigin: `${shot.x}px ${shot.y}px`,
-                  cursor: 'pointer',
-                }}
+                className={
+                  animatedShots &&
+                  displayMode === 'ballHits' &&
+                  !isFilterTransitioning
+                    ? 'opacity-100'
+                    : 'opacity-0'
+                }
               >
                 {shot.result === 'groundBounce' ? (
                   <circle
@@ -443,7 +450,7 @@ const Court: React.FC<CourtProps> = ({
                     cy={shot.y}
                     r="1.5"
                     fill="none"
-                    stroke="#0ea5e9"
+                    stroke="rgb(14, 165, 233)"
                     strokeWidth="1"
                   />
                 ) : (
@@ -454,7 +461,7 @@ const Court: React.FC<CourtProps> = ({
                       } M ${shot.x - 1} ${shot.y + 1} L ${shot.x + 1} ${
                         shot.y - 1
                       }`}
-                      stroke="#f97316"
+                      stroke="rgb(249, 115, 22)"
                       strokeWidth="1"
                       strokeLinecap="round"
                     />
@@ -466,13 +473,13 @@ const Court: React.FC<CourtProps> = ({
 
           {/* Heatmap text labels - moved to the end so they appear on top */}
           <g
-            className={`transition-all duration-500 ${
+            className={
               displayMode === 'playerPosition' &&
               !isTransitioning &&
               heatmapView !== 'heatmap'
                 ? 'opacity-100'
                 : 'opacity-0'
-            }`}
+            }
           >
             {renderHeatmapLabels()}
           </g>

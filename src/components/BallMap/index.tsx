@@ -85,7 +85,11 @@ const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
     <div
       className="mt-4 rounded-2xl border border-slate-200/50 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-lg"
       style={{
+        WebkitAnimation: `fade-in 0.5s ease-out ${delay}ms both`,
         animation: `fade-in 0.5s ease-out ${delay}ms both`,
+        WebkitTransform: 'translateZ(0)',
+        transform: 'translateZ(0)',
+        willChange: 'opacity, transform',
       }}
     >
       <Header mainMode={mainMode} onModeChange={handleModeChange} />
