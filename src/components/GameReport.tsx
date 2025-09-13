@@ -17,9 +17,6 @@ interface GameData {
   leftShots: number;
   opponentLeftWinners: number;
   opponentRightWinners: number;
-  timeInPlay: number;
-  averageRally: number;
-  longestRally: number;
 }
 
 const GameReport: React.FC = () => {
@@ -30,6 +27,7 @@ const GameReport: React.FC = () => {
     return <div className="p-4 text-red-500">Invalid player ID.</div>;
   }
 
+  // Data for components that still use mock data
   const gameData: GameData = {
     offensive: 65,
     defensive: 35,
@@ -38,10 +36,10 @@ const GameReport: React.FC = () => {
     leftShots: 25,
     opponentLeftWinners: 28,
     opponentRightWinners: 35,
-    timeInPlay: 42,
-    averageRally: 6.3,
-    longestRally: 24,
   };
+
+  // Match ID for data service (could be derived from playerId or URL params)
+  const matchId = 'default'; // In production, this might be extracted from route params
 
   return (
     <div className="min-h-screen p-4">
@@ -97,7 +95,7 @@ const GameReport: React.FC = () => {
           <div className="absolute -bottom-2 -left-2 h-16 w-16 animate-pulse rounded-full bg-gradient-to-br from-green-400/20 to-blue-400/20 blur-xl delay-1000"></div>
         </div>*/}
 
-        <MatchSummary gameData={gameData} />
+        <MatchSummary matchId={matchId} />
         <PremiumOverlay>
           <ShotAnalysis
             delay={400}
