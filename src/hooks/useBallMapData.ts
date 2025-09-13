@@ -319,7 +319,8 @@ export function useHeatmapPoints(ballMapData: BallMapData | null, containerWidth
           
           // Convert to pixel coordinates within container
           const pixelX = ((frontendX - 10) / 80) * containerWidth;
-          const pixelY = (frontendY / 75) * containerHeight;
+          // Invert Y coordinate for proper display (SVG Y=0 is top, but court Y=0 should be net)
+          const pixelY = containerHeight - (frontendY / 75) * containerHeight;
           
           points.push({
             x: Math.round(pixelX),
