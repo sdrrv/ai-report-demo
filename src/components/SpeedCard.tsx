@@ -1,44 +1,142 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, User } from 'lucide-react';
+import { Zap, User, AlertCircle, RefreshCw } from 'lucide-react';
 import { cn } from '@/utils/cn';
-
-interface PlayerSpeed {
-  id: number;
-  name: string;
-  speed: number; // km/h (max speed)
-  avgSpeed: number; // km/h (average speed)
-  isMe?: boolean;
-}
+import { usePlayerSpeed } from '@/hooks/usePlayerSpeed';
+import { PlayerId } from '@/types/backend';
 
 interface SpeedCardProps {
-  //selectedPlayer: number;
+  selectedPlayer: PlayerId;
+  matchId?: string;
   delay?: number;
 }
 
-const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
+const SpeedCard: React.FC<SpeedCardProps> = ({ selectedPlayer, matchId = 'default', delay = 0 }) => {
   const [animatedWidths, setAnimatedWidths] = useState<number[]>([]);
 
-  // Sample data - replace with actual data based on selectedPlayer
-  const playerSpeeds: PlayerSpeed[] = [
-    { id: 1, name: 'You', speed: 28.5, avgSpeed: 22.3, isMe: true },
-    { id: 2, name: 'Player 2', speed: 24.3, avgSpeed: 19.8 },
-    { id: 3, name: 'Player 3', speed: 19.7, avgSpeed: 16.2 },
-    { id: 4, name: 'Player 1', speed: 16.2, avgSpeed: 13.5 },
-  ].sort((a, b) => b.speed - a.speed); // Sort by speed (highest first)
+  // Fetch real speed data using the hook
+  const { data: playerSpeedData, loading, error, refetch } = usePlayerSpeed({
+    playerId: selectedPlayer,
+    matchId
+  });
 
-  const maxSpeed = Math.max(...playerSpeeds.map((p) => p.speed));
+  // Calculate max speed for progress bar scaling
+  const maxSpeed = playerSpeedData ? Math.max(...playerSpeedData.map((p) => p.maxSpeed)) : 0;
 
+  // Animation effect for progress bars
   useEffect(() => {
+    if (!playerSpeedData || loading) return;
+
     const timer = setTimeout(() => {
-      const widths = playerSpeeds.map(
-        (player) => (player.speed / maxSpeed) * 100,
+      const widths = playerSpeedData.map(
+        (player) => (player.maxSpeed / maxSpeed) * 100,
       );
       setAnimatedWidths(widths);
     }, delay + 400);
 
     return () => clearTimeout(timer);
-  }, [playerSpeeds, maxSpeed, delay]);
+  }, [playerSpeedData, maxSpeed, delay, loading]);
 
+  // Loading state
+  if (loading) {
+    return (
+      <div
+        className="mt-4 rounded-2xl border border-slate-200/50 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-lg"
+        style={{
+          animation: `fade-in 0.5s ease-out ${delay}ms both`,
+        }}
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="mb-1 flex items-center gap-3 text-lg font-semibold text-slate-800">
+              <div className="rounded-lg bg-slate-600 p-2">
+                <Zap className="h-5 w-5 text-white" />
+              </div>
+              Running Speed
+            </h2>
+            <p className="ml-12 text-sm text-slate-500">
+              Loading player speed data...
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center py-12">
+          <RefreshCw className="h-8 w-8 animate-spin text-slate-400" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div
+        className="mt-4 rounded-2xl border border-red-200/50 bg-gradient-to-br from-red-50 to-red-100 p-6 shadow-lg"
+        style={{
+          animation: `fade-in 0.5s ease-out ${delay}ms both`,
+        }}
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="mb-1 flex items-center gap-3 text-lg font-semibold text-red-800">
+              <div className="rounded-lg bg-red-600 p-2">
+                <AlertCircle className="h-5 w-5 text-white" />
+              </div>
+              Running Speed
+            </h2>
+            <p className="ml-12 text-sm text-red-600">
+              Failed to load speed data
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center py-6">
+          <p className="mb-4 text-sm text-red-600">
+            {error.message || 'Unable to load player speed data'}
+          </p>
+          <button
+            onClick={refetch}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // No data state
+  if (!playerSpeedData || playerSpeedData.length === 0) {
+    return (
+      <div
+        className="mt-4 rounded-2xl border border-slate-200/50 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-lg"
+        style={{
+          animation: `fade-in 0.5s ease-out ${delay}ms both`,
+        }}
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="mb-1 flex items-center gap-3 text-lg font-semibold text-slate-800">
+              <div className="rounded-lg bg-slate-600 p-2">
+                <Zap className="h-5 w-5 text-white" />
+              </div>
+              Running Speed
+            </h2>
+            <p className="ml-12 text-sm text-slate-500">
+              No speed data available
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center py-12">
+          <p className="text-sm text-slate-500">
+            No player speed data found for this match
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Success state with data
   return (
     <div
       className="mt-4 rounded-2xl border border-slate-200/50 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-lg"
@@ -61,8 +159,8 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
       </div>
 
       <div className="space-y-4">
-        {playerSpeeds.map((player, index) => (
-          <div key={player.id} className="flex items-center gap-4">
+        {playerSpeedData.map((player, index) => (
+          <div key={player.playerId} className="flex items-center gap-4">
             {/* Avatar */}
             <div
               className={cn(
@@ -81,11 +179,11 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
                     player.isMe ? 'text-slate-900' : 'text-slate-700'
                   }`}
                 >
-                  {player.name}
+                  {player.playerName}
                 </h3>
                 <div className="text-right">
                   <div className="text-medium font-bold text-slate-800">
-                    {player.speed.toFixed(1)} km/h
+                    {player.maxSpeed.toFixed(1)} km/h
                   </div>
                   <div
                     className="text-xs text-slate-500 transition-opacity duration-500"
@@ -94,7 +192,7 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ delay = 0 }) => {
                       transitionDelay: `${index * 200 + 300}ms`,
                     }}
                   >
-                    avg {player.avgSpeed.toFixed(1)}
+                    avg {player.averageSpeed.toFixed(1)}
                   </div>
                 </div>
               </div>

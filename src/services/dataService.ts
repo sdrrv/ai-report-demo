@@ -3,7 +3,7 @@
  * Coordinates API calls, caching, transformations, and error handling
  */
 
-import { MatchStatistics } from '@/types/backend';
+import { PlayerId } from '@/types/backend';
 import { 
   MatchSummaryData, 
   DataServiceError, 
@@ -17,6 +17,7 @@ import {
 import { getCacheInstance, defaultCacheConfig } from './cache/cacheManager';
 import { statisticsApi } from './api/statisticsApi';
 import { matchSummaryTransformer } from './transformers/matchSummaryTransformer';
+import { speedTransformer } from './transformers/speedTransformer';
 
 export class StatisticsDataService {
   private static instance: StatisticsDataService;
@@ -128,15 +129,93 @@ export class StatisticsDataService {
     }
   }
 
+  private async fetchAndTransformPlayerSpeed(selectedPlayerId: PlayerId): Promise<PlayerSpeedData[]> {
+    try {
+      // Fetch raw data
+      const rawData = await statisticsApi.fetch();
+      
+      // Validate data
+      if (!speedTransformer.validate(rawData)) {
+        const validationReport = speedTransformer.getValidationReport(rawData);
+        throw new DataServiceError(
+          'Player speed data validation failed',
+          ErrorCode.VALIDATION_FAILED,
+          { 
+            errors: validationReport.errors,
+            warnings: validationReport.warnings,
+            availablePlayerIds: validationReport.availablePlayerIds
+          }
+        );
+      }
+
+      // Transform data with selected player ID
+      const transformedData = speedTransformer.transform(rawData, selectedPlayerId);
+      
+      return transformedData;
+
+    } catch (error) {
+      if (error instanceof DataServiceError) {
+        throw error;
+      }
+
+      throw new DataServiceError(
+        'Failed to fetch and transform player speed data',
+        ErrorCode.TRANSFORMATION_ERROR,
+        { 
+          selectedPlayerId, 
+          originalError: error instanceof Error ? error.message : String(error)
+        }
+      );
+    }
+  }
+
   // ===== FUTURE METHODS (STUBS FOR SCALABILITY) =====
 
-  async getPlayerSpeed(playerId: string, matchId: string = 'default'): Promise<PlayerSpeedData[]> {
-    // Placeholder for future implementation
-    throw new DataServiceError(
-      'Player speed data not yet implemented',
-      ErrorCode.NOT_FOUND,
-      { playerId, matchId }
+  async getPlayerSpeed(playerId: PlayerId, matchId: string = 'default', options?: {
+    forceRefresh?: boolean;
+    timeout?: number;
+  }): Promise<PlayerSpeedData[]> {
+    const { forceRefresh = false, timeout = 10000 } = options || {};
+    const cacheKey = `player_speed_${matchId}_${playerId}`;
+    
+    // Check cache first (unless forcing refresh)
+    if (!forceRefresh) {
+      const cached = this.cache.get<PlayerSpeedData[]>(cacheKey);
+      if (cached) {
+        this.logPerformance('player_speed_cache_hit', cacheKey);
+        return cached;
+      }
+    }
+
+    // Check if already loading this data
+    const existingOperation = this.loadingOperations.get(cacheKey);
+    if (existingOperation && !forceRefresh) {
+      return existingOperation.promise;
+    }
+
+    // Create new loading operation
+    const operation = this.createAsyncOperation(
+      () => this.fetchAndTransformPlayerSpeed(playerId),
+      timeout
     );
+
+    this.loadingOperations.set(cacheKey, operation);
+
+    try {
+      const result = await operation.promise;
+      
+      // Cache the result
+      this.cache.set(cacheKey, result);
+      this.logPerformance('player_speed_fetch_success', cacheKey);
+      
+      return result;
+
+    } catch (error) {
+      this.logPerformance('player_speed_fetch_error', cacheKey, error);
+      throw this.handleServiceError(error, 'getPlayerSpeed', { playerId, matchId });
+    } finally {
+      this.loadingOperations.delete(cacheKey);
+    }
   }
 
   async getPlayerDistance(playerId: string, matchId: string = 'default'): Promise<PlayerDistanceData[]> {
@@ -163,7 +242,7 @@ export class StatisticsDataService {
   }
 
   cancelAllOperations(): void {
-    for (const [key, operation] of this.loadingOperations.entries()) {
+    for (const [_key, operation] of this.loadingOperations.entries()) {
       operation.cancel();
     }
     this.loadingOperations.clear();
@@ -376,4 +455,21 @@ export function invalidateMatchSummaryCache(matchId?: string) {
 
 export function isMatchSummaryLoading(matchId: string = 'default'): boolean {
   return statisticsDataService.isLoading(`match_summary_${matchId}`);
+}
+
+export async function getPlayerSpeed(playerId: PlayerId, matchId?: string, options?: { forceRefresh?: boolean }) {
+  return statisticsDataService.getPlayerSpeed(playerId, matchId, options);
+}
+
+export function invalidatePlayerSpeedCache(playerId?: PlayerId, matchId?: string) {
+  const pattern = playerId && matchId 
+    ? `player_speed_${matchId}_${playerId}` 
+    : playerId 
+      ? `player_speed_.*_${playerId}`
+      : 'player_speed_';
+  statisticsDataService.invalidateCache(pattern);
+}
+
+export function isPlayerSpeedLoading(playerId: PlayerId, matchId: string = 'default'): boolean {
+  return statisticsDataService.isLoading(`player_speed_${matchId}_${playerId}`);
 }

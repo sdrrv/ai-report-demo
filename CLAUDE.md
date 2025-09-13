@@ -44,9 +44,36 @@ This is a React + TypeScript application built with Vite, focused on Padel match
 - **Linting**: ESLint with TypeScript, React, and Prettier integration
 - **Build Target**: ES2015 with sourcemaps enabled
 
+## Data Architecture
+
+The application uses a robust, scalable data service architecture for handling backend integration:
+
+### Data Service Layer
+- **Main Service**: `src/services/dataService.ts` - Singleton service orchestrating all data operations
+- **API Layer**: `src/services/api/statisticsApi.ts` - Handles loading statistics.json with error handling
+- **Cache System**: `src/services/cache/cacheManager.ts` - Hybrid caching (memory + sessionStorage) with TTL support
+- **Transformers**: `src/services/transformers/` - Convert raw backend data to component-ready format
+- **Types**: `src/types/services.ts` - Service-specific TypeScript interfaces
+
+### React Integration
+- **Hooks**: `src/hooks/useMatchSummary.ts` - React hooks with loading/error states, retry logic, and caching
+- **Components**: Modified to use data service instead of mock data
+- **Error Handling**: Comprehensive error boundaries with retry capabilities
+
+### Cache Strategy
+- **Memory Cache**: 5-minute TTL for immediate access
+- **Persistent Cache**: 30-minute TTL in sessionStorage (survives navigation)
+- **LRU Eviction**: Prevents memory bloat with size limits
+- **Automatic Invalidation**: Pattern-based cache clearing
+
+### Backend Integration Status
+- ✅ **Match Summary**: Migrated to real data (time in minutes, rally duration in seconds)
+- 🔄 **Premium Features**: Shot Analysis, Serves Analysis, Points & Errors, Ball Hits (Pro overlay)
+- 🔄 **Ready for Migration**: Speed Card, Distance Card (backend data available)
+
 ### Development Notes
 - Uses custom polyfills for legacy browser compatibility
 - Extensive TypeScript configuration with strict mode
 - Components follow React functional patterns with hooks
 - Global CSS utilities and Tailwind merge for class handling
-- amazing job, just to give you some context, this webapp will be presented as a AI Report for my start up company Matchlytics. This will be served in a reactapp as a webview. This will display the metrics of a game of Padel.
+- Data flows from statistics.json → API → Cache → Transformers → React Hooks → Components

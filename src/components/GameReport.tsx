@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { PlayerId } from '@/types/backend';
 import BallMap from './BallMap';
 import SpeedCard from './SpeedCard';
 import ShotAnalysis from './ShotAnalysis';
@@ -21,11 +22,13 @@ interface GameData {
 
 const GameReport: React.FC = () => {
   const { playerId } = useParams<{ playerId: string }>();
-  const selectedPlayer = playerId ? parseInt(playerId) : null;
+  const selectedPlayerNum = playerId ? parseInt(playerId) : null;
 
-  if (!selectedPlayer || isNaN(selectedPlayer)) {
-    return <div className="p-4 text-red-500">Invalid player ID.</div>;
+  if (!selectedPlayerNum || isNaN(selectedPlayerNum) || selectedPlayerNum < 1 || selectedPlayerNum > 4) {
+    return <div className="p-4 text-red-500">Invalid player ID. Must be 1, 2, 3, or 4.</div>;
   }
+
+  const selectedPlayer: PlayerId = selectedPlayerNum as PlayerId;
 
   // Data for components that still use mock data
   const gameData: GameData = {
@@ -109,7 +112,7 @@ const GameReport: React.FC = () => {
         <PremiumOverlay>
           <ServesCard delay={800} />
         </PremiumOverlay>
-        <SpeedCard delay={1800} />
+        <SpeedCard selectedPlayer={selectedPlayer} matchId={matchId} delay={1800} />
         <DistanceCard />
         <PremiumOverlay>
           <PointsErrorsCard selectedPlayer={selectedPlayer} delay={600} />

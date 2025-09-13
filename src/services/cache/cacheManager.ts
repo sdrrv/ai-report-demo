@@ -15,7 +15,9 @@ export class HybridCacheStrategy implements CacheStrategy {
       getItem: () => null,
       setItem: () => {},
       removeItem: () => {},
-      clear: () => {}
+      clear: () => {},
+      length: 0,
+      key: () => null
     } as Storage);
   }
 
