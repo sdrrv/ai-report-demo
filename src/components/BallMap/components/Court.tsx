@@ -16,6 +16,7 @@ const Court: React.FC<CourtProps> = ({
   const heatmapContainerRef = useRef<HTMLDivElement>(null);
   const heatmapInstanceRef = useRef<any>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     console.log('Court component mounted');
@@ -25,22 +26,36 @@ const Court: React.FC<CourtProps> = ({
   }, []);
 
   useEffect(() => {
+    // Clear any pending timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    // Always clean up previous instance first
+    if (heatmapInstanceRef.current) {
+      heatmapInstanceRef.current = null;
+      if (heatmapContainerRef.current) {
+        heatmapContainerRef.current.innerHTML = '';
+      }
+    }
+
     if (
       heatmapView === 'heatmap' &&
       displayMode === 'playerPosition' &&
       heatmapContainerRef.current &&
       svgRef.current
     ) {
-      // Clean up previous instance
-      if (heatmapInstanceRef.current) {
-        heatmapInstanceRef.current = null;
+
+      // Wait for container to be properly sized
+      timeoutRef.current = setTimeout(() => {
+        // Double-check cleanup before creating new instance
+        if (heatmapInstanceRef.current) {
+          heatmapInstanceRef.current = null;
+        }
         if (heatmapContainerRef.current) {
           heatmapContainerRef.current.innerHTML = '';
         }
-      }
-
-      // Wait for container to be properly sized
-      setTimeout(() => {
         // Create heatmap instance
         if (heatmapContainerRef.current) {
           const config = {
@@ -125,11 +140,19 @@ const Court: React.FC<CourtProps> = ({
     }
 
     return () => {
+      // Cleanup on unmount or dependency change
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
       if (heatmapInstanceRef.current) {
         heatmapInstanceRef.current = null;
       }
+      if (heatmapContainerRef.current) {
+        heatmapContainerRef.current.innerHTML = '';
+      }
     };
-  }, [heatmapView, displayMode]);
+  }, [heatmapView, displayMode, heatmapData]);
 
   const renderHeatmapOverlays = () => {
     // Handle case where heatmapData might be a grid (for continuous heatmap)
