@@ -11,12 +11,12 @@ import Court from './components/Court';
 import Legend from './components/Legend';
 
 const BallMap: React.FC<BallMapProps> = ({ delay = 0 }) => {
-  const [mainMode, setMainMode] = useState<MainMode>('ballHits');
+  const [mainMode, setMainMode] = useState<MainMode>('playerPosition');
   const [selectedShot, setSelectedShot] = useState<string>('all');
   const [heatmapView, setHeatmapView] = useState<HeatmapView>('zones');
   const [animatedShots, setAnimatedShots] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [displayMode, setDisplayMode] = useState<MainMode>('ballHits');
+  const [displayMode, setDisplayMode] = useState<MainMode>('playerPosition');
   const [isFilterTransitioning, setIsFilterTransitioning] = useState(false);
   const [displayShot, setDisplayShot] = useState<string>('all');
 

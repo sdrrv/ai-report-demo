@@ -7,6 +7,7 @@ import ServesCard from './ServesCard';
 import DistanceCard from './PlayerDistance';
 import MatchSummary from './MatchSummary';
 import PointsErrorsCard from './PlayerStats';
+import PremiumOverlay from './PremiumOverlay';
 
 interface GameData {
   offensive: number;
@@ -97,18 +98,24 @@ const GameReport: React.FC = () => {
         </div>*/}
 
         <MatchSummary gameData={gameData} />
-        <ShotAnalysis
-          delay={400}
-          offensive={gameData.offensive}
-          defensive={gameData.defensive}
-          rightShots={gameData.rightShots}
-          centerShots={gameData.centerShots}
-          leftShots={gameData.leftShots}
-        />
-        <ServesCard delay={800} />
+        <PremiumOverlay>
+          <ShotAnalysis
+            delay={400}
+            offensive={gameData.offensive}
+            defensive={gameData.defensive}
+            rightShots={gameData.rightShots}
+            centerShots={gameData.centerShots}
+            leftShots={gameData.leftShots}
+          />
+        </PremiumOverlay>
+        <PremiumOverlay>
+          <ServesCard delay={800} />
+        </PremiumOverlay>
         <SpeedCard delay={1800} />
         <DistanceCard />
-        <PointsErrorsCard selectedPlayer={selectedPlayer} delay={600} />
+        <PremiumOverlay>
+          <PointsErrorsCard selectedPlayer={selectedPlayer} delay={600} />
+        </PremiumOverlay>
         <BallMap />
       </div>
     </div>
