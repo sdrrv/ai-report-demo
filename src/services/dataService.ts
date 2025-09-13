@@ -11,13 +11,15 @@ import {
   ServiceConfig, 
   AsyncOperation,
   PlayerSpeedData,
-  PlayerDistanceData
+  PlayerDistanceData,
+  BallMapData
 } from '@/types/services';
 
 import { getCacheInstance, defaultCacheConfig } from './cache/cacheManager';
 import { statisticsApi } from './api/statisticsApi';
 import { matchSummaryTransformer } from './transformers/matchSummaryTransformer';
 import { speedTransformer } from './transformers/speedTransformer';
+import { ballMapTransformer } from './transformers/ballMapTransformer';
 
 export class StatisticsDataService {
   private static instance: StatisticsDataService;
@@ -169,6 +171,46 @@ export class StatisticsDataService {
     }
   }
 
+  private async fetchAndTransformBallMapData(selectedPlayerId: PlayerId): Promise<BallMapData> {
+    try {
+      // Fetch raw data
+      const rawData = await statisticsApi.fetch();
+      
+      // Validate data
+      if (!ballMapTransformer.validate(rawData)) {
+        const validationReport = ballMapTransformer.getValidationReport(rawData);
+        throw new DataServiceError(
+          'Ball map data validation failed',
+          ErrorCode.VALIDATION_FAILED,
+          { 
+            errors: validationReport.errors,
+            warnings: validationReport.warnings,
+            availablePlayerIds: validationReport.availablePlayerIds
+          }
+        );
+      }
+
+      // Transform data with selected player ID
+      const transformedData = ballMapTransformer.transform(rawData, selectedPlayerId);
+      
+      return transformedData;
+
+    } catch (error) {
+      if (error instanceof DataServiceError) {
+        throw error;
+      }
+
+      throw new DataServiceError(
+        'Failed to fetch and transform ball map data',
+        ErrorCode.TRANSFORMATION_ERROR,
+        { 
+          selectedPlayerId, 
+          originalError: error instanceof Error ? error.message : String(error)
+        }
+      );
+    }
+  }
+
   // ===== FUTURE METHODS (STUBS FOR SCALABILITY) =====
 
   async getPlayerSpeed(playerId: PlayerId, matchId: string = 'default', options?: {
@@ -213,6 +255,53 @@ export class StatisticsDataService {
     } catch (error) {
       this.logPerformance('player_speed_fetch_error', cacheKey, error);
       throw this.handleServiceError(error, 'getPlayerSpeed', { playerId, matchId });
+    } finally {
+      this.loadingOperations.delete(cacheKey);
+    }
+  }
+
+  async getBallMapData(playerId: PlayerId, matchId: string = 'default', options?: {
+    forceRefresh?: boolean;
+    timeout?: number;
+  }): Promise<BallMapData> {
+    const { forceRefresh = false, timeout = 10000 } = options || {};
+    const cacheKey = `ball_map_${matchId}_${playerId}`;
+    
+    // Check cache first (unless forcing refresh)
+    if (!forceRefresh) {
+      const cached = this.cache.get<BallMapData>(cacheKey);
+      if (cached) {
+        this.logPerformance('ball_map_cache_hit', cacheKey);
+        return cached;
+      }
+    }
+
+    // Check if already loading this data
+    const existingOperation = this.loadingOperations.get(cacheKey);
+    if (existingOperation && !forceRefresh) {
+      return existingOperation.promise;
+    }
+
+    // Create new loading operation
+    const operation = this.createAsyncOperation(
+      () => this.fetchAndTransformBallMapData(playerId),
+      timeout
+    );
+
+    this.loadingOperations.set(cacheKey, operation);
+
+    try {
+      const result = await operation.promise;
+      
+      // Cache the result
+      this.cache.set(cacheKey, result);
+      this.logPerformance('ball_map_fetch_success', cacheKey);
+      
+      return result;
+
+    } catch (error) {
+      this.logPerformance('ball_map_fetch_error', cacheKey, error);
+      throw this.handleServiceError(error, 'getBallMapData', { playerId, matchId });
     } finally {
       this.loadingOperations.delete(cacheKey);
     }
@@ -472,4 +561,21 @@ export function invalidatePlayerSpeedCache(playerId?: PlayerId, matchId?: string
 
 export function isPlayerSpeedLoading(playerId: PlayerId, matchId: string = 'default'): boolean {
   return statisticsDataService.isLoading(`player_speed_${matchId}_${playerId}`);
+}
+
+export async function getBallMapData(playerId: PlayerId, matchId?: string, options?: { forceRefresh?: boolean }) {
+  return statisticsDataService.getBallMapData(playerId, matchId, options);
+}
+
+export function invalidateBallMapCache(playerId?: PlayerId, matchId?: string) {
+  const pattern = playerId && matchId 
+    ? `ball_map_${matchId}_${playerId}` 
+    : playerId 
+      ? `ball_map_.*_${playerId}`
+      : 'ball_map_';
+  statisticsDataService.invalidateCache(pattern);
+}
+
+export function isBallMapLoading(playerId: PlayerId, matchId: string = 'default'): boolean {
+  return statisticsDataService.isLoading(`ball_map_${matchId}_${playerId}`);
 }

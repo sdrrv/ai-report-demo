@@ -117,7 +117,7 @@ const GameReport: React.FC = () => {
         <PremiumOverlay>
           <PointsErrorsCard selectedPlayer={selectedPlayer} delay={600} />
         </PremiumOverlay>
-        <BallMap />
+        <BallMap selectedPlayer={selectedPlayer} matchId={matchId} />
       </div>
     </div>
   );

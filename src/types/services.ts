@@ -28,6 +28,46 @@ export interface PlayerDistanceData {
   isMe?: boolean;
 }
 
+// ===== BALL MAP DATA TYPES =====
+
+export interface CourtZoneData {
+  region: string;
+  value: number;                // percentage (0-100)
+}
+
+export interface HeatmapPoint {
+  x: number;                    // pixel coordinate
+  y: number;                    // pixel coordinate
+  value: number;                // intensity value (0-100)
+}
+
+export interface HeatmapGridData {
+  data: number[][];             // 2D intensity array (0-1 normalized)
+  x_edges: number[];            // Grid edge coordinates in meters
+  y_edges: number[];            // Grid edge coordinates in meters
+  total_points: number;         // Total data points
+  grid_size: [number, number];  // [width, height] in cells
+  court_bounds: [number[], number[]]; // [[x_min, x_max], [y_min, y_max]]
+  mirror_negative_y: boolean;   // Whether to mirror Y coordinates
+}
+
+export interface BallMapData {
+  playerId: number;
+  playerName: string;
+  isMe?: boolean;
+  
+  // Court zone data (ready to display as percentages)
+  zones: CourtZoneData[];       // 9 zones (3x3 grid)
+  sides: CourtZoneData[];       // 3 sides (left, middle, right)
+  frontBack: CourtZoneData[];   // 2 areas (front, back)
+  
+  // Heatmap data for continuous visualization
+  heatmapGrid: HeatmapGridData;
+  
+  // Metadata
+  matchId?: string;
+}
+
 // ===== SERVICE INTERFACES =====
 
 export interface DataTransformer<TInput, TOutput> {

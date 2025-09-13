@@ -37,6 +37,8 @@ export type HeatmapView = 'zones' | 'sides' | 'front-back' | 'heatmap';
 export type MainMode = 'ballHits' | 'playerPosition';
 
 export interface BallMapProps {
+  selectedPlayer: number;
+  matchId?: string;
   delay?: number;
 }
 
@@ -71,7 +73,7 @@ export interface CourtProps {
   animatedShots: boolean;
   isFilterTransitioning: boolean;
   heatmapView: HeatmapView;
-  heatmapData: HeatmapData[];
+  heatmapData: HeatmapData[] | any;
 }
 
 export interface LegendProps {

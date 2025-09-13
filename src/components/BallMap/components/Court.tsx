@@ -61,21 +61,62 @@ const Court: React.FC<CourtProps> = ({
 
           heatmapInstanceRef.current = h337.create(config);
 
-          // Generate and set data
-          const points = generateHeatmapPoints();
+          // Generate and set data - use real data if available
           const containerWidth = heatmapContainerRef.current!.offsetWidth;
           const containerHeight = heatmapContainerRef.current!.offsetHeight;
+          
+          let dataPoints;
+          
+          // Check if we have real heatmap grid data
+          if (heatmapData && typeof heatmapData === 'object' && 'data' in heatmapData) {
+            // Use real heatmap grid data
+            const gridData = heatmapData as any; // Cast to avoid type issues
+            dataPoints = [];
+            
+            // Convert 2D grid to points
+            for (let i = 0; i < gridData.data.length; i++) {
+              for (let j = 0; j < gridData.data[i].length; j++) {
+                const intensity = gridData.data[i][j];
+                if (intensity > 0) {
+                  // Calculate grid center coordinates in meters
+                  const backendX = gridData.x_edges[j] + (gridData.x_edges[j + 1] - gridData.x_edges[j]) / 2;
+                  let backendY = gridData.y_edges[i] + (gridData.y_edges[i + 1] - gridData.y_edges[i]) / 2;
+                  
+                  // Handle mirroring if specified
+                  if (gridData.mirror_negative_y) {
+                    backendY = 10 - backendY; // Assuming 10 is max Y
+                  }
+
+                  // Transform to frontend coordinates: Backend[-5,5] -> Frontend[10,90], Backend[0,10] -> Frontend[0,75]
+                  const frontendX = ((backendX + 5) / 10) * 80 + 10;
+                  const frontendY = (backendY / 10) * 75;
+                  
+                  // Convert to pixel coordinates within container
+                  const pixelX = ((frontendX - 10) / 80) * containerWidth;
+                  const pixelY = (frontendY / 75) * containerHeight;
+                  
+                  dataPoints.push({
+                    x: Math.round(pixelX),
+                    y: Math.round(pixelY),
+                    value: Math.round(intensity * 100) // Convert 0-1 to 0-100
+                  });
+                }
+              }
+            }
+          } else {
+            // Fallback to mock data
+            const points = generateHeatmapPoints();
+            dataPoints = points.map((point) => ({
+              x: Math.round(((point.x - 10) / 80) * containerWidth),
+              y: Math.round((point.y / 75) * containerHeight),
+              value: point.value,
+            }));
+          }
 
           const data = {
             max: 100,
             min: 0,
-            data: points.map((point) => ({
-              // Transform from court coordinates (10-90, 0-75) to pixel coordinates
-              //Doing the maths hehehehheehhe
-              x: Math.round(((point.x - 10) / 80) * containerWidth),
-              y: Math.round((point.y / 75) * containerHeight),
-              value: point.value,
-            })),
+            data: dataPoints,
           };
 
           heatmapInstanceRef.current.setData(data);
@@ -91,6 +132,11 @@ const Court: React.FC<CourtProps> = ({
   }, [heatmapView, displayMode]);
 
   const renderHeatmapOverlays = () => {
+    // Handle case where heatmapData might be a grid (for continuous heatmap)
+    if (!Array.isArray(heatmapData)) {
+      return null;
+    }
+
     if (heatmapView === 'zones') {
       return (
         <g>
@@ -100,21 +146,21 @@ const Court: React.FC<CourtProps> = ({
             y="0"
             width="26.67"
             height="25"
-            fill={getOverlayColor(heatmapData[0].value)}
+            fill={getOverlayColor(heatmapData[0]?.value || 0)}
           />
           <rect
             x="36.67"
             y="0"
             width="26.67"
             height="25"
-            fill={getOverlayColor(heatmapData[1].value)}
+            fill={getOverlayColor(heatmapData[1]?.value || 0)}
           />
           <rect
             x="63.33"
             y="0"
             width="26.67"
             height="25"
-            fill={getOverlayColor(heatmapData[2].value)}
+            fill={getOverlayColor(heatmapData[2]?.value || 0)}
           />
 
           {/* Transition zones (middle row) */}
@@ -123,21 +169,21 @@ const Court: React.FC<CourtProps> = ({
             y="25"
             width="26.67"
             height="25"
-            fill={getOverlayColor(heatmapData[3].value)}
+            fill={getOverlayColor(heatmapData[3]?.value || 0)}
           />
           <rect
             x="36.67"
             y="25"
             width="26.67"
             height="25"
-            fill={getOverlayColor(heatmapData[4].value)}
+            fill={getOverlayColor(heatmapData[4]?.value || 0)}
           />
           <rect
             x="63.33"
             y="25"
             width="26.67"
             height="25"
-            fill={getOverlayColor(heatmapData[5].value)}
+            fill={getOverlayColor(heatmapData[5]?.value || 0)}
           />
 
           {/* Back zones (bottom row) */}
@@ -146,21 +192,21 @@ const Court: React.FC<CourtProps> = ({
             y="50"
             width="26.67"
             height="25"
-            fill={getOverlayColor(heatmapData[6].value)}
+            fill={getOverlayColor(heatmapData[6]?.value || 0)}
           />
           <rect
             x="36.67"
             y="50"
             width="26.67"
             height="25"
-            fill={getOverlayColor(heatmapData[7].value)}
+            fill={getOverlayColor(heatmapData[7]?.value || 0)}
           />
           <rect
             x="63.33"
             y="50"
             width="26.67"
             height="25"
-            fill={getOverlayColor(heatmapData[8].value)}
+            fill={getOverlayColor(heatmapData[8]?.value || 0)}
           />
         </g>
       );
@@ -175,7 +221,7 @@ const Court: React.FC<CourtProps> = ({
             y="0"
             width="26.67"
             height="75"
-            fill={getOverlayColor(heatmapData[0].value)}
+            fill={getOverlayColor(heatmapData[0]?.value || 0)}
           />
 
           {/* Middle Side */}
@@ -184,7 +230,7 @@ const Court: React.FC<CourtProps> = ({
             y="0"
             width="26.67"
             height="75"
-            fill={getOverlayColor(heatmapData[1].value)}
+            fill={getOverlayColor(heatmapData[1]?.value || 0)}
           />
 
           {/* Right Side */}
@@ -193,7 +239,7 @@ const Court: React.FC<CourtProps> = ({
             y="0"
             width="26.67"
             height="75"
-            fill={getOverlayColor(heatmapData[2].value)}
+            fill={getOverlayColor(heatmapData[2]?.value || 0)}
           />
         </g>
       );
@@ -208,7 +254,7 @@ const Court: React.FC<CourtProps> = ({
             y="0"
             width="80"
             height="37.5"
-            fill={getOverlayColor(heatmapData[0].value)}
+            fill={getOverlayColor(heatmapData[0]?.value || 0)}
           />
 
           {/* Back */}
@@ -217,7 +263,7 @@ const Court: React.FC<CourtProps> = ({
             y="37.5"
             width="80"
             height="37.5"
-            fill={getOverlayColor(heatmapData[1].value)}
+            fill={getOverlayColor(heatmapData[1]?.value || 0)}
           />
         </g>
       );
@@ -227,6 +273,11 @@ const Court: React.FC<CourtProps> = ({
   };
 
   const renderHeatmapLabels = () => {
+    // Handle case where heatmapData might be a grid (for continuous heatmap)
+    if (!Array.isArray(heatmapData)) {
+      return null;
+    }
+
     if (heatmapView === 'zones') {
       return (
         <g>
