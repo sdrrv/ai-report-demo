@@ -9,6 +9,7 @@ import DistanceCard from './PlayerDistance';
 import MatchSummary from './MatchSummary';
 import PointsErrorsCard from './PlayerStats';
 import PremiumOverlay from './PremiumOverlay';
+import TeamsCard from './TeamsCard';
 
 interface GameData {
   offensive: number;
@@ -98,6 +99,7 @@ const GameReport: React.FC = () => {
           <div className="absolute -bottom-2 -left-2 h-16 w-16 animate-pulse rounded-full bg-gradient-to-br from-green-400/20 to-blue-400/20 blur-xl delay-1000"></div>
         </div>*/}
 
+        <TeamsCard selectedPlayer={selectedPlayer} delay={0} />
         <MatchSummary matchId={matchId} />
         <PremiumOverlay>
           <ShotAnalysis
