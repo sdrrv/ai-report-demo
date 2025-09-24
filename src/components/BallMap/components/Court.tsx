@@ -239,29 +239,29 @@ const Court: React.FC<CourtProps> = ({
     if (heatmapView === 'sides') {
       return (
         <g>
-          {/* Left Side */}
+          {/* Left Side (3m width) */}
           <rect
             x="10"
             y="0"
-            width="26.67"
+            width="24"
             height="75"
             fill={getOverlayColor(heatmapData[0]?.value || 0)}
           />
 
-          {/* Middle Side */}
+          {/* Middle Side (4m width) */}
           <rect
-            x="36.67"
+            x="34"
             y="0"
-            width="26.67"
+            width="32"
             height="75"
             fill={getOverlayColor(heatmapData[1]?.value || 0)}
           />
 
-          {/* Right Side */}
+          {/* Right Side (3m width) */}
           <rect
-            x="63.33"
+            x="66"
             y="0"
-            width="26.67"
+            width="24"
             height="75"
             fill={getOverlayColor(heatmapData[2]?.value || 0)}
           />
@@ -272,22 +272,31 @@ const Court: React.FC<CourtProps> = ({
     if (heatmapView === 'front-back') {
       return (
         <g>
-          {/* Front (Net area) */}
+          {/* Net zone (4m height) */}
           <rect
             x="10"
             y="0"
             width="80"
-            height="37.5"
+            height="30"
             fill={getOverlayColor(heatmapData[0]?.value || 0)}
           />
 
-          {/* Back */}
+          {/* Transition zone (2m height) */}
           <rect
             x="10"
-            y="37.5"
+            y="30"
             width="80"
-            height="37.5"
+            height="15"
             fill={getOverlayColor(heatmapData[1]?.value || 0)}
+          />
+
+          {/* Back zone (4m height) */}
+          <rect
+            x="10"
+            y="45"
+            width="80"
+            height="30"
+            fill={getOverlayColor(heatmapData[2]?.value || 0)}
           />
         </g>
       );
@@ -344,7 +353,9 @@ const Court: React.FC<CourtProps> = ({
         <g>
           {/* Percentage badges */}
           {heatmapData.map((data, index) => {
-            const x = 23.33 + index * 26.67;
+            // Proportional column centers: Left(3m)=22, Center(4m)=50, Right(3m)=78
+            const xPositions = [22, 50, 78];
+            const x = xPositions[index];
             const y = 37.5;
             return (
               <text
@@ -373,7 +384,9 @@ const Court: React.FC<CourtProps> = ({
           {/* Percentage badges */}
           {heatmapData.map((data, index) => {
             const x = 70;
-            const y = 18.75 + index * 37.5;
+            // Proportional row centers: Net(4m)=15, Transition(2m)=37.5, Back(4m)=60
+            const yPositions = [15, 37.5, 60];
+            const y = yPositions[index];
             return (
               <text
                 key={index}

@@ -199,13 +199,11 @@ export class BallMapTransformer implements DataTransformer<MatchStatistics, Ball
 
   private transformFrontBack(frontBack: any): CourtZoneData[] {
     // In backend: net, transition, back
-    // For frontend front-back view, we combine net+transition as "front"
-    const frontValue = (frontBack.net || 0) + (frontBack.transition || 0);
-    const backValue = frontBack.back || 0;
-
+    // For frontend front-back view, we show all 3 zones separately with proper proportions
     return [
-      { region: 'front', value: Math.round(frontValue * 100) },
-      { region: 'back', value: Math.round(backValue * 100) }
+      { region: 'net', value: Math.round((frontBack.net || 0) * 100) },
+      { region: 'transition', value: Math.round((frontBack.transition || 0) * 100) },
+      { region: 'back', value: Math.round((frontBack.back || 0) * 100) }
     ];
   }
 
