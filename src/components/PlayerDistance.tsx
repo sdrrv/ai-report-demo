@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Footprints, User } from 'lucide-react';
+import { Footprints, User, Handshake } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface PlayerDistance {
@@ -7,6 +7,7 @@ interface PlayerDistance {
   name: string;
   distance: number; // in meters
   isMe?: boolean;
+  isTeammate?: boolean;
 }
 
 interface DistanceCardProps {
@@ -16,12 +17,26 @@ interface DistanceCardProps {
 const DistanceCard: React.FC<DistanceCardProps> = ({ delay = 0 }) => {
   const [animatedWidths, setAnimatedWidths] = useState<number[]>([]);
 
+  // Get selected player from some context or props (defaulting to 1 for demo)
+  const selectedPlayer = 1; // This should come from props or context
+
+  // Determine teammate based on selected player
+  const getTeammate = (playerId: number): number | null => {
+    if (playerId === 1) return 2;
+    if (playerId === 2) return 1;
+    if (playerId === 3) return 4;
+    if (playerId === 4) return 3;
+    return null;
+  };
+
+  const teammateId = getTeammate(selectedPlayer);
+
   // Sample data - replace with actual data
   const playerDistances: PlayerDistance[] = [
-    { id: 1, name: 'You', distance: 2000, isMe: true },
-    { id: 2, name: 'Player 2', distance: 2200 },
-    { id: 3, name: 'Player 3', distance: 1800 },
-    { id: 4, name: 'Player 1', distance: 1500 },
+    { id: 1, name: selectedPlayer === 1 ? 'You' : 'Player 1', distance: 2000, isMe: selectedPlayer === 1, isTeammate: teammateId === 1 },
+    { id: 2, name: selectedPlayer === 2 ? 'You' : 'Player 2', distance: 2200, isMe: selectedPlayer === 2, isTeammate: teammateId === 2 },
+    { id: 3, name: selectedPlayer === 3 ? 'You' : 'Player 3', distance: 1800, isMe: selectedPlayer === 3, isTeammate: teammateId === 3 },
+    { id: 4, name: selectedPlayer === 4 ? 'You' : 'Player 4', distance: 1500, isMe: selectedPlayer === 4, isTeammate: teammateId === 4 },
   ].sort((a, b) => b.distance - a.distance); // Sort by distance (highest first)
 
   const maxDistance = Math.max(...playerDistances.map((p) => p.distance));
@@ -74,13 +89,18 @@ const DistanceCard: React.FC<DistanceCardProps> = ({ delay = 0 }) => {
             {/* Player Info and Progress */}
             <div className="flex-1">
               <div className="mb-2 flex items-center justify-between">
-                <h3
-                  className={`font-medium ${
-                    player.isMe ? 'text-slate-900' : 'text-slate-700'
-                  }`}
-                >
-                  {player.name}
-                </h3>
+                <div className="flex items-center gap-1">
+                  <h3
+                    className={`font-medium ${
+                      player.isMe ? 'text-slate-900' : 'text-slate-700'
+                    }`}
+                  >
+                    {player.name}
+                  </h3>
+                  {player.isTeammate && (
+                    <Handshake className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0 border border-emerald-600 rounded-sm p-0.5" />
+                  )}
+                </div>
                 <span className="text-medium font-bold text-slate-800">
                   {player.distance.toLocaleString()} m
                 </span>

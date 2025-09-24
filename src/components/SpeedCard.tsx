@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, User, AlertCircle, RefreshCw } from 'lucide-react';
+import { Zap, User, AlertCircle, RefreshCw, Handshake } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { usePlayerSpeed } from '@/hooks/usePlayerSpeed';
 import { PlayerId } from '@/types/backend';
@@ -13,11 +13,28 @@ interface SpeedCardProps {
 const SpeedCard: React.FC<SpeedCardProps> = ({ selectedPlayer, matchId = 'default', delay = 0 }) => {
   const [animatedWidths, setAnimatedWidths] = useState<number[]>([]);
 
+  // Determine teammate based on selected player
+  const getTeammate = (playerId: PlayerId): PlayerId | null => {
+    if (playerId === 1) return 2;
+    if (playerId === 2) return 1;
+    if (playerId === 3) return 4;
+    if (playerId === 4) return 3;
+    return null;
+  };
+
+  const teammateId = getTeammate(selectedPlayer);
+
   // Fetch real speed data using the hook
-  const { data: playerSpeedData, loading, error, refetch } = usePlayerSpeed({
+  const { data: rawPlayerSpeedData, loading, error, refetch } = usePlayerSpeed({
     playerId: selectedPlayer,
     matchId
   });
+
+  // Add teammate detection to player data
+  const playerSpeedData = rawPlayerSpeedData?.map(player => ({
+    ...player,
+    isTeammate: teammateId === player.playerId
+  }));
 
   // Calculate max speed for progress bar scaling
   const maxSpeed = playerSpeedData ? Math.max(...playerSpeedData.map((p) => p.maxSpeed)) : 0;
@@ -174,13 +191,18 @@ const SpeedCard: React.FC<SpeedCardProps> = ({ selectedPlayer, matchId = 'defaul
             {/* Player Info and Progress */}
             <div className="flex-1">
               <div className="mb-2 flex items-center justify-between">
-                <h3
-                  className={`font-medium ${
-                    player.isMe ? 'text-slate-900' : 'text-slate-700'
-                  }`}
-                >
-                  {player.playerName}
-                </h3>
+                <div className="flex items-center gap-1">
+                  <h3
+                    className={`font-medium ${
+                      player.isMe ? 'text-slate-900' : 'text-slate-700'
+                    }`}
+                  >
+                    {player.playerName}
+                  </h3>
+                  {(player as any).isTeammate && (
+                    <Handshake className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0 border border-emerald-600 rounded-sm p-0.5" />
+                  )}
+                </div>
                 <div className="text-right">
                   <div className="text-medium font-bold text-slate-800">
                     {player.maxSpeed.toFixed(1)} km/h

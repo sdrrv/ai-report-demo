@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Target, User } from 'lucide-react';
+import { Target, User, Handshake } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface PlayerStats {
@@ -25,19 +25,23 @@ const PointsErrorsCard: React.FC<PointsErrorsCardProps> = ({
   const [showStats, setShowStats] = useState(false);
   console.log(selectedPlayer);
 
+  // Determine teammate based on selected player
+  const getTeammate = (playerId: number): number | null => {
+    if (playerId === 1) return 2;
+    if (playerId === 2) return 1;
+    if (playerId === 3) return 4;
+    if (playerId === 4) return 3;
+    return null;
+  };
+
+  const teammateId = getTeammate(selectedPlayer);
+
   // Sample data - replace with actual data based on selectedPlayer
-  // Assuming selectedPlayer 1 is paired with Player 2 as teammate
   const playerStats: PlayerStats[] = [
-    { id: 1, name: 'You', points: 32, errors: 8, isMe: true },
-    {
-      id: 2,
-      name: 'Teammate (Player 2)',
-      points: 28,
-      errors: 11,
-      isTeammate: true,
-    },
-    { id: 3, name: 'Player 3', points: 25, errors: 13 },
-    { id: 4, name: 'Player 4', points: 22, errors: 9 },
+    { id: 1, name: selectedPlayer === 1 ? 'You' : 'Player 1', points: 32, errors: 8, isMe: selectedPlayer === 1, isTeammate: teammateId === 1 },
+    { id: 2, name: selectedPlayer === 2 ? 'You' : 'Player 2', points: 28, errors: 11, isMe: selectedPlayer === 2, isTeammate: teammateId === 2 },
+    { id: 3, name: selectedPlayer === 3 ? 'You' : 'Player 3', points: 25, errors: 13, isMe: selectedPlayer === 3, isTeammate: teammateId === 3 },
+    { id: 4, name: selectedPlayer === 4 ? 'You' : 'Player 4', points: 22, errors: 9, isMe: selectedPlayer === 4, isTeammate: teammateId === 4 },
   ];
 
   const maxPoints = Math.max(...playerStats.map((p) => p.points));
@@ -113,13 +117,18 @@ const PointsErrorsCard: React.FC<PointsErrorsCardProps> = ({
                   {/* Player Info and Progress */}
                   <div className="flex-1">
                     <div className="mb-1 flex items-center justify-between">
-                      <h4
-                        className={`text-sm font-medium ${
-                          player.isMe ? 'text-slate-900' : 'text-slate-700'
-                        }`}
-                      >
-                        {player.name}
-                      </h4>
+                      <div className="flex items-center gap-1">
+                        <h4
+                          className={`text-sm font-medium ${
+                            player.isMe ? 'text-slate-900' : 'text-slate-700'
+                          }`}
+                        >
+                          {player.name}
+                        </h4>
+                        {player.isTeammate && (
+                          <Handshake className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0 border border-emerald-600 rounded-sm p-0.5" />
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-slate-800">
                           {player.points}
@@ -184,13 +193,18 @@ const PointsErrorsCard: React.FC<PointsErrorsCardProps> = ({
                   {/* Player Info and Progress */}
                   <div className="flex-1">
                     <div className="mb-1 flex items-center justify-between">
-                      <h4
-                        className={`text-sm font-medium ${
-                          player.isMe ? 'text-slate-900' : 'text-slate-700'
-                        }`}
-                      >
-                        {player.name}
-                      </h4>
+                      <div className="flex items-center gap-1">
+                        <h4
+                          className={`text-sm font-medium ${
+                            player.isMe ? 'text-slate-900' : 'text-slate-700'
+                          }`}
+                        >
+                          {player.name}
+                        </h4>
+                        {player.isTeammate && (
+                          <Handshake className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0 border border-emerald-600 rounded-sm p-0.5" />
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-slate-800">
                           {player.errors}
