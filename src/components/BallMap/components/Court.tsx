@@ -171,6 +171,8 @@ const Court: React.FC<CourtProps> = ({
             width="24"
             height="30"
             fill={getOverlayColor(heatmapData[0]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
           <rect
             x="34"
@@ -178,6 +180,8 @@ const Court: React.FC<CourtProps> = ({
             width="32"
             height="30"
             fill={getOverlayColor(heatmapData[1]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
           <rect
             x="66"
@@ -185,6 +189,8 @@ const Court: React.FC<CourtProps> = ({
             width="24"
             height="30"
             fill={getOverlayColor(heatmapData[2]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
 
           {/* Transition zones (middle row: 2m height) */}
@@ -194,6 +200,8 @@ const Court: React.FC<CourtProps> = ({
             width="24"
             height="15"
             fill={getOverlayColor(heatmapData[3]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
           <rect
             x="34"
@@ -201,6 +209,8 @@ const Court: React.FC<CourtProps> = ({
             width="32"
             height="15"
             fill={getOverlayColor(heatmapData[4]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
           <rect
             x="66"
@@ -208,6 +218,8 @@ const Court: React.FC<CourtProps> = ({
             width="24"
             height="15"
             fill={getOverlayColor(heatmapData[5]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
 
           {/* Back zones (bottom row: 4m height) */}
@@ -217,6 +229,8 @@ const Court: React.FC<CourtProps> = ({
             width="24"
             height="30"
             fill={getOverlayColor(heatmapData[6]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
           <rect
             x="34"
@@ -224,6 +238,8 @@ const Court: React.FC<CourtProps> = ({
             width="32"
             height="30"
             fill={getOverlayColor(heatmapData[7]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
           <rect
             x="66"
@@ -231,6 +247,8 @@ const Court: React.FC<CourtProps> = ({
             width="24"
             height="30"
             fill={getOverlayColor(heatmapData[8]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
         </g>
       );
@@ -246,6 +264,8 @@ const Court: React.FC<CourtProps> = ({
             width="24"
             height="75"
             fill={getOverlayColor(heatmapData[0]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
 
           {/* Middle Side (4m width) */}
@@ -255,6 +275,8 @@ const Court: React.FC<CourtProps> = ({
             width="32"
             height="75"
             fill={getOverlayColor(heatmapData[1]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
 
           {/* Right Side (3m width) */}
@@ -264,6 +286,8 @@ const Court: React.FC<CourtProps> = ({
             width="24"
             height="75"
             fill={getOverlayColor(heatmapData[2]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
         </g>
       );
@@ -279,6 +303,8 @@ const Court: React.FC<CourtProps> = ({
             width="80"
             height="30"
             fill={getOverlayColor(heatmapData[0]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
 
           {/* Transition zone (2m height) */}
@@ -288,6 +314,8 @@ const Court: React.FC<CourtProps> = ({
             width="80"
             height="15"
             fill={getOverlayColor(heatmapData[1]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
 
           {/* Back zone (4m height) */}
@@ -297,6 +325,8 @@ const Court: React.FC<CourtProps> = ({
             width="80"
             height="30"
             fill={getOverlayColor(heatmapData[2]?.value || 0)}
+            stroke="rgba(0, 0, 0, 0.05)"
+            strokeWidth="0.5"
           />
         </g>
       );
