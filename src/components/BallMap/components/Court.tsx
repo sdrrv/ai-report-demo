@@ -164,72 +164,72 @@ const Court: React.FC<CourtProps> = ({
     if (heatmapView === 'zones') {
       return (
         <g>
-          {/* Net zones (first row) */}
+          {/* Net zones (first row: 4m height) */}
           <rect
             x="10"
             y="0"
-            width="26.67"
-            height="25"
+            width="24"
+            height="30"
             fill={getOverlayColor(heatmapData[0]?.value || 0)}
           />
           <rect
-            x="36.67"
+            x="34"
             y="0"
-            width="26.67"
-            height="25"
+            width="32"
+            height="30"
             fill={getOverlayColor(heatmapData[1]?.value || 0)}
           />
           <rect
-            x="63.33"
+            x="66"
             y="0"
-            width="26.67"
-            height="25"
+            width="24"
+            height="30"
             fill={getOverlayColor(heatmapData[2]?.value || 0)}
           />
 
-          {/* Transition zones (middle row) */}
+          {/* Transition zones (middle row: 2m height) */}
           <rect
             x="10"
-            y="25"
-            width="26.67"
-            height="25"
+            y="30"
+            width="24"
+            height="15"
             fill={getOverlayColor(heatmapData[3]?.value || 0)}
           />
           <rect
-            x="36.67"
-            y="25"
-            width="26.67"
-            height="25"
+            x="34"
+            y="30"
+            width="32"
+            height="15"
             fill={getOverlayColor(heatmapData[4]?.value || 0)}
           />
           <rect
-            x="63.33"
-            y="25"
-            width="26.67"
-            height="25"
+            x="66"
+            y="30"
+            width="24"
+            height="15"
             fill={getOverlayColor(heatmapData[5]?.value || 0)}
           />
 
-          {/* Back zones (bottom row) */}
+          {/* Back zones (bottom row: 4m height) */}
           <rect
             x="10"
-            y="50"
-            width="26.67"
-            height="25"
+            y="45"
+            width="24"
+            height="30"
             fill={getOverlayColor(heatmapData[6]?.value || 0)}
           />
           <rect
-            x="36.67"
-            y="50"
-            width="26.67"
-            height="25"
+            x="34"
+            y="45"
+            width="32"
+            height="30"
             fill={getOverlayColor(heatmapData[7]?.value || 0)}
           />
           <rect
-            x="63.33"
-            y="50"
-            width="26.67"
-            height="25"
+            x="66"
+            y="45"
+            width="24"
+            height="30"
             fill={getOverlayColor(heatmapData[8]?.value || 0)}
           />
         </g>
@@ -309,8 +309,15 @@ const Court: React.FC<CourtProps> = ({
           {heatmapData.map((data, index) => {
             const row = Math.floor(index / 3);
             const col = index % 3;
-            const x = 23.33 + col * 26.67;
-            const y = 12.5 + row * 25;
+
+            // Proportional column centers: Left(3m)=22, Center(4m)=50, Right(3m)=78
+            const xPositions = [22, 50, 78];
+            // Proportional row centers: Net(4m)=15, Transition(2m)=37.5, Back(4m)=60
+            const yPositions = [15, 37.5, 60];
+
+            const x = xPositions[col];
+            const y = yPositions[row];
+
             return (
               <text
                 key={index}
