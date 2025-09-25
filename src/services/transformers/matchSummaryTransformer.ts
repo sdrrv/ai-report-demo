@@ -25,6 +25,8 @@ export class MatchSummaryTransformer implements DataTransformer<MatchStatistics,
       const averageRallyDuration = match_summary.average_rally_duration || 0;
       const longestRallyDuration = match_summary.longest_rally?.duration || 0;
       const totalRallies = match_summary.number_of_rallies || 0;
+      const rallyTimePercentage = match_summary.rally_time_percentage || 0;
+      const totalGameTimeSeconds = match_summary.total_game_time || 0;
 
       // Transform the data
       const result: MatchSummaryData = {
@@ -32,6 +34,8 @@ export class MatchSummaryTransformer implements DataTransformer<MatchStatistics,
         averageRally: this.roundToOneDecimal(averageRallyDuration),
         longestRally: this.roundToOneDecimal(longestRallyDuration),
         totalRallies: totalRallies,
+        rallyTimePercentage: this.roundToOneDecimal(rallyTimePercentage),
+        totalGameTime: this.convertSecondsToMinutes(totalGameTimeSeconds),
         matchId: this.extractMatchId(data)
       };
 
@@ -170,10 +174,12 @@ export class MatchSummaryTransformer implements DataTransformer<MatchStatistics,
       return {
         timeInPlay: this.convertSecondsToMinutes(match_summary.total_rally_time),
         averageRally: this.roundToOneDecimal(match_summary.average_rally_duration),
-        longestRally: match_summary.longest_rally 
+        longestRally: match_summary.longest_rally
           ? this.roundToOneDecimal(match_summary.longest_rally.duration)
           : 0,
-        totalRallies: match_summary.number_of_rallies || 0
+        totalRallies: match_summary.number_of_rallies || 0,
+        rallyTimePercentage: this.roundToOneDecimal(match_summary.rally_time_percentage || 0),
+        totalGameTime: this.convertSecondsToMinutes(match_summary.total_game_time || 0)
       };
     } catch {
       return null;

@@ -9,6 +9,8 @@ export interface MatchSummaryData {
   averageRally: number;         // seconds (rally duration)
   longestRally: number;         // seconds (rally duration)
   totalRallies: number;         // count of rallies
+  rallyTimePercentage: number;  // percentage of game time spent in rallies
+  totalGameTime: number;        // minutes (converted from seconds)
   matchId?: string;
 }
 
